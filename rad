@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+
+import sys
+
+def print_usage():
+    print("usage: rad -s selector")
+
+if len(sys.argv) != 3 or sys.argv[1] != "-s":
+    print_usage()
+    sys.exit()
+
+selector = sys.argv[2]
+
+for line in sys.stdin:
+    if "rad-begin" in line:
+        if selector in line:
+            line = next(sys.stdin)
+            while "rad-end" not in line:
+                sys.stdout.write(line)
+                line = next(sys.stdin)
+            continue;
+        if selector not in line:
+            line = next(sys.stdin)
+            while "rad-end" not in line:
+                line = next(sys.stdin)
+            continue;
+    sys.stdout.write(line)
+
+
