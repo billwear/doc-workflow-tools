@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+
+import os, sys
+
+def find_all(a_str, sub):
+        start = 0
+        while True:
+                start = a_str.find(sub, start)
+                if start == -1: return
+                yield start
+                start += len(sub) # use start += 1 to find overlapping matches
+
+def get_topic_number(dictionary, selector, url):
+
+        # create the matching url
+        match_url = selector + "/" + url
+
+        # add code to attempt to find records from input data
+        matched_lines = [line for line in dictionary.split('\n') if match_url in line]
+
+        # split the results down to the topic number
+        parsed_line = matched_lines[0].split('|')
+        topic_number = parsed_line[1].split('/')[-1]
+
+        # return the topic number
+        return topic_number
+
+def print_usage():
+        print("usage: rlink -s selector")
+        
+# rudimentary command line handling
+if len(sys.argv) != 3 or sys.argv[1] != "-s":
+        print_usage()
+        sys.exit(2)
+
+# peel the selector out of the argument list
+selector = sys.argv[2]
+
+# first, let's not reinvent the wheel; 
+# let's just use dpull, which we already have
+stream = os.popen('./dpull -n 25 -c ./dc.yaml')
+dictionary = stream.read()
+
+# find the URL mapping table
+dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
+
+# pull in the document markdown from stdin; gulping it because links sometimes 
+# span lines; won’t handle that for alpha, but need to be prepared for it
+document_markdown = sys.stdin.read()
+
+# find every instance of “/t/”
+links = list(find_all(document_markdown, '/t/'))
+
+# loop through the list and find all that contain "nnnn"
+for i in links:
+
+        # split on closing parend
+        full_link = document_markdown[i:].split(")")
+
+        # find the topic number part by splitting on "/"
+        topic_part = full_link[0].split("/")[-1]
+
+        # is the topic_part an "nnnn"?
+        if topic_part == "nnnn":
+
+                # find the edges of the link
+                where = document_markdown.find("nnnn", i) + 4
+                if where == -1:
+                        continue
+
+                # pull out the base url 
+                base_url = document_markdown[i:where].split("/")[-2]
+
+                # find the topic number
+                topic_number = get_topic_number(dictionary, selector, base_url)
+
+                # form up the replacement link
+                repl_link = "/t/" + base_url + "/" + topic_number
+
+                # form up the original link
+                orig_link = document_markdown[i:where]
+
+                # make the replacements in the document markdown
+                # (we don't care if it replaces them more than once, just saves us some time)
+                document_markdown = document_markdown.replace(orig_link,repl_link)
+
+# output the fixed RAD document to stdout
+sys.stdout.write(document_markdown)
+
+
+

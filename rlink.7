@@ -1,0 +1,58 @@
+.\"Modified from man(1) of FreeBSD, the NetBSD mdoc.template, and mdoc.samples.
+.\"See Also:
+.\"man mdoc.samples for a complete listing of options
+.\"man mdoc for the short list of editing options
+.\"/usr/share/misc/mdoc.template
+.Dd 8/4/10               \" DATE
+.Dt rlink 7      \" Program name and manual section number
+.Os Ubuntu
+.Sh NAME                 \" Section Header - required - don't modify
+.Nm rlink
+.\" The following lines are read in generating the apropos(man -k) database. Use only key
+.\" words here as the database is built based on the words here and in the .ND line.
+.\" Use .Nm macro to designate other names for the documented program.
+.Nd adjust links in RAD document to match current document selector.
+.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Nm
+.\".Op Fl abcd              \" [-abcd]
+.Op Fl s Ar selector         \" [-a path]
+.Op Fl d Ar /path/to/dictionary         \" [-a path]
+.\".Op Ar file              \" [file]
+.\".Op Ar                   \" [file ...]
+.\".Ar arg0                 \" Underlined argument - use .Ar anywhere to underline
+.\"arg2 ...                 \" Arguments
+.Sh DESCRIPTION          \" Section Header - required - don't modify
+.Nm
+converts all RAD doc links in stdin to point to the correct discourse topic numbers.
+.\".Ar underlined text .
+.Pp                      \" Inserts a space
+RAD (Reader Adaptive Documentation) documents for a given selector (e.g, "version-2.8") should point at other RAD documents that match the same selector. 
+.Pp
+For example, if a RAD file "Network Topology," with selector "/snap/2.8/ui," refers to another file in the RAD doc set called "Subnet Configuration," there will be one copy of each file for each RAD selector.  The link to "Subnet Configuration" must be adjusted to point to the "/snap/2.8/ui" version of that file.  This is done by changing the discourse topic number in the embedded link.
+.Pp
+.Nm
+uses the main index document to find the correct topic number.  The
+.Ar selector
+argument is matched against the embedded URL list to retrieve the topic number. When using 
+.Nm
+, the selector should be the RAD part of the URL of each document, e.g., "/snap/2.8/ui."  When preparing the RAD document to be corrected by
+.Nm
+, the last part of the document URL should be used in place of the normal discourse links, e.g., "/t/about-maas/nnnn."  The "nnnn" is added as four literal "n" characters, so that
+.Nm
+ knows to look up the corresponding topic number, using the selector and the last part of the document URL to find it.
+.Pp
+You can find the correct URL by looking at the document and using the last subdirectory on the documents URL -- the text after the last "/" slash.  For example, if you want
+.Nm
+ to substitute each RAD version with the correct link for "About MAAS," you would find any version of the document on the MAAS documentation website, pull of the last subdir of the URL ("about-maas"), and place "/t/about-maas/nnnn" in your master document.   
+.Pp
+Note that
+.Nm
+ will have to be run once for each RAD variant you want to generate.
+.Pp
+.Nm
+outputs the corrected RAD text to stdout.
+.Sh FILES          \" Section Header - required - don't modify
+.Ar <some.name.when.it.is.decided>
+is the dictionary file.  It is a <some.type.of.file>, manipulated <in.some.sort.of.way>.  This file contains <some.stuff.in.some.given.format>.
+.\" .Sh BUGS              \" Document known, unremedied bugs
+.\" .Sh HISTORY           \" Document history if command behaves in a unique manner
