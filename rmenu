@@ -1,0 +1,112 @@
+#!/usr/bin/python3
+
+import os, sys
+
+def makesel(string):
+        selector = "/" + string.split("/",2)[2].rsplit("/",1)[0]
+        return selector
+
+def find_all(a_str, sub):
+        start = 0
+        while True:
+                start = a_str.find(sub, start)
+                if start == -1: return
+                yield start
+                start += len(sub) # use start += 1 to find overlapping matches
+
+def get_topic_number(dictionary, selector, url):
+
+        # create the matching url
+        match_url = selector + "/" + url
+
+        # add code to attempt to find records from input data
+        matched_lines = [line for line in dictionary.split('\n') if match_url in line]
+
+        # split the results down to the topic number
+        parsed_line = matched_lines[0].split('|')
+        topic_number = parsed_line[1].split('/')[-1]
+
+        # return the topic number
+        return topic_number
+
+def print_usage():
+        print("usage: rmenu -b base_url")
+        
+# rudimentary command line handling
+if len(sys.argv) != 3 or sys.argv[1] != "-b":
+        print_usage()
+        sys.exit(2)
+
+# pull in the document markdown from stdin; gulping it because links sometimes 
+# span lines; won’t handle that for alpha, but need to be prepared for it
+document_markdown = sys.stdin.read()
+
+# peel the selector out of the argument list
+base_url = sys.argv[2]
+
+# first, let's not reinvent the wheel; 
+# let's just use dpull, which we already have
+stream = os.popen('./dpull -n 25 -c ./dc.yaml')
+dictionary = stream.read()
+
+# find the URL mapping table
+dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
+
+# find all matching dictionary lines
+matched_lines = [line for line in dictionary.split('\n') if base_url in line]
+
+# build a list of the actual URLs
+rad_urls = []
+for i in matched_lines:
+        rad_urls.append(i.split('|')[2])
+        
+# sort the matching url list
+rad_urls.sort()
+
+# alpha assumptions: two packages/four versions/cli and ui each
+# prepare the menu, cell by cell
+table = "||" + rad_urls[0].split("/")[3]
+table += "|" + rad_urls[2].split("/")[3]
+table += "|" + rad_urls[4].split("/")[3]
+table += "|" + rad_urls[6].split("/")[3] + "|\n"
+table += "|-----:|:-----:|:-----:|:-----:|:-----:|\n"
+table += "|" + rad_urls[0].split("/")[2].upper() 
+table += "| [" + rad_urls[0].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[0]),base_url) 
+table += ") ~ [" + rad_urls[1].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[1]),base_url) + ")"
+table += "| [" + rad_urls[2].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[2]),base_url) 
+table += ") ~ [" + rad_urls[3].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[3]),base_url) + ")"
+table += "| [" + rad_urls[4].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[4]),base_url) 
+table += ") ~ [" + rad_urls[5].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[5]),base_url) + ")"
+table += "| [" + rad_urls[6].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[6]),base_url) 
+table += ") ~ [" + rad_urls[7].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[7]),base_url) + ")|\n"
+table += "|" + rad_urls[8].split("/")[2].upper() 
+table += "| [" + rad_urls[8].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[8]),base_url) 
+table += ") ~ [" + rad_urls[9].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[9]),base_url) + ")"
+table += "| [" + rad_urls[10].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[10]),base_url) 
+table += ") ~ [" + rad_urls[11].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[11]),base_url) + ")"
+table += "| [" + rad_urls[12].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[12]),base_url) 
+table += ") ~ [" + rad_urls[13].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[13]),base_url) + ")"
+table += "| [" + rad_urls[14].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[14]),base_url) 
+table += ") ~ [" + rad_urls[15].split("/")[4].upper() + "](/t/-/"
+table += get_topic_number(dictionary,makesel(rad_urls[15]),base_url) + ")|\n"
+
+# output the augmented RAD document to stdout
+sys.stdout.write(table + "\n" + document_markdown)
+
+
+
