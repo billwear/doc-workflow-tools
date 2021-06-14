@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import sqlite3, sys, os
+from sqlite3 import Error
+
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+
+    return conn
+
+def create_table(conn, create_table_sql):
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+    except Error as e:
+        print(e)
+
+def read_index_topic(index_topic_number, url, topic_number):
+    
+    # first, let's not reinvent the wheel; 
+    # let's just use dpull, which we already have
+    stream = os.popen('./dpull -n ' + str(index_topic_number) + ' -c ./dc.yaml')
+    dictionary = stream.read()
+
+    # find the URL mapping table
+    dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
+    
+    # break it up into two lists for the database: url and topic number
+    dictionary_lines = dictionary.split('\n')
+
+    for i in dictionary_lines:
+        if "https" in i:
+            topic_number.append(i.split('|')[1].split('/')[-1])
+            url.append(i.split('|')[2])
+
+def create_link(conn, link):
+
+    sql = ''' INSERT INTO links(url, topic_number) VALUES(?,?) '''
+
+    cur = conn.cursor()
+    cur.execute(sql, link)
+    conn.commit()
+
+    return cur.lastrowid
+
+url = []
+topic_number = []
+
+db_file = "./rad.db"
+
+sql_create_links_table = """CREATE TABLE IF NOT EXISTS links (
+                                id integer PRIMARY KEY,
+                                url text,
+                                topic_number integer
+                            ); """
+
+conn = create_connection(r"./rad.db")
+
+if conn is not None:
+    create_table(conn, sql_create_links_table)
+else:
+    print("Error: could not create database connection")
+
+read_index_topic(25,url,topic_number)
+
+for u, t in zip(url, topic_number):
+    link = (u, t)
+    create_link(conn, link)

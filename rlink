@@ -1,6 +1,17 @@
 #!/usr/bin/python3
 
-import os, sys
+import os, sys, sqlite3
+from sqlite3 import Error
+
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+
+    return conn
 
 def find_all(a_str, sub):
         start = 0
@@ -10,21 +21,19 @@ def find_all(a_str, sub):
                 yield start
                 start += len(sub) # use start += 1 to find overlapping matches
 
-def get_topic_number(dictionary, selector, url):
+def get_topic_number(conn, selector, url):
 
         # create the matching url
-        match_url = selector + "/" + url
+        db_url = "/docs" + selector + "/" + url
 
-        # add code to attempt to find records from input data
-        matched_lines = [line for line in dictionary.split('\n') if match_url in line]
+        # attempt to find the matching record in the RAD database
+        cur = conn.cursor()
+        cur.execute("SELECT topic_number from links WHERE url=?", (db_url,))
+        topic_number = cur.fetchall()
 
-        # split the results down to the topic number
-        parsed_line = matched_lines[0].split('|')
-        topic_number = parsed_line[1].split('/')[-1]
-
-        # return the topic number
-        return topic_number
-
+        # clean up the topic number on the way out
+        return int(str(topic_number).split('(')[1].split(',')[0])
+                                    
 def print_usage():
         print("usage: rlink -s selector")
         
@@ -36,13 +45,8 @@ if len(sys.argv) != 3 or sys.argv[1] != "-s":
 # peel the selector out of the argument list
 selector = sys.argv[2]
 
-# first, let's not reinvent the wheel; 
-# let's just use dpull, which we already have
-stream = os.popen('./dpull -n 25 -c ./dc.yaml')
-dictionary = stream.read()
-
-# find the URL mapping table
-dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
+# make a connection to the rad.db database
+conn = create_connection(r"./rad.db")
 
 # pull in the document markdown from stdin; gulping it because links sometimes 
 # span lines; won’t handle that for alpha, but need to be prepared for it
@@ -72,7 +76,7 @@ for i in links:
                 base_url = document_markdown[i:where].split("/")[-2]
 
                 # find the topic number
-                topic_number = get_topic_number(dictionary, selector, base_url)
+                topic_number = get_topic_number(conn, selector, base_url)
 
                 # form up the replacement link
                 repl_link = "/t/" + base_url + "/" + str(topic_number)
