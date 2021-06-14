@@ -28,7 +28,7 @@ def get_topic_number(conn, selector, url):
 
         # attempt to find the matching record in the RAD database
         cur = conn.cursor()
-        cur.execute("SELECT topic_number from links WHERE url=?", (db_url,))
+        cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
         topic_number = cur.fetchall()
 
         # clean up the topic number on the way out

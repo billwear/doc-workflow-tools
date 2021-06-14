@@ -51,8 +51,6 @@ def create_link(conn, link):
 url = []
 topic_number = []
 
-db_file = "./rad.db"
-
 sql_create_links_table = """CREATE TABLE IF NOT EXISTS links (
                                 id integer PRIMARY KEY,
                                 url text,

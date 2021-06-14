@@ -1,6 +1,18 @@
 #!/usr/bin/python3
 
-import os, sys
+import os, sys, sqlite3
+from sqlite3 import Error
+
+
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+
+    return conn
 
 def makesel(string):
         selector = "/" + string.split("/",2)[2].rsplit("/",1)[0]
@@ -14,21 +26,30 @@ def find_all(a_str, sub):
                 yield start
                 start += len(sub) # use start += 1 to find overlapping matches
 
-def get_topic_number(dictionary, selector, url):
+def get_topic_number(conn, selector, url):
 
+        print(selector, url)
         # create the matching url
-        match_url = selector + "/" + url
+        db_url = "/docs" + selector + "/" + url
 
-        # add code to attempt to find records from input data
-        matched_lines = [line for line in dictionary.split('\n') if match_url in line]
+        # attempt to find the matching record in the RAD database
+        cur = conn.cursor()
+        cur.execute("SELECT topic_number from links WHERE url=?", (db_url,))
+        topic_number = cur.fetchall()
 
-        # split the results down to the topic number
-        parsed_line = matched_lines[0].split('|')
-        topic_number = parsed_line[1].split('/')[-1]
+        # clean up the topic number on the way out
+        return int(str(topic_number).split('(')[1].split(',')[0])
 
-        # return the topic number
-        return topic_number
+def find_matching_urls(base_url):
 
+        # attempt to find the matching records in the RAD database
+        cur = conn.cursor()
+        cur.execute("SELECT url from links where url like '%" + base_url + "%'")
+        matching_rows = cur.fetchall()
+
+        # return the results
+        return matching_rows
+        
 def print_usage():
         print("usage: rmenu -b base_url")
         
@@ -44,22 +65,17 @@ document_markdown = sys.stdin.read()
 # peel the selector out of the argument list
 base_url = sys.argv[2]
 
-# first, let's not reinvent the wheel; 
-# let's just use dpull, which we already have
-stream = os.popen('./dpull -n 25 -c ./dc.yaml')
-dictionary = stream.read()
+# make a connection to the rad.db database
+conn = create_connection(r"./rad.db")
 
-# find the URL mapping table
-dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
-
-# find all matching dictionary lines
-matched_lines = [line for line in dictionary.split('\n') if base_url in line]
+# retrieve all db records where URL contains base_url
+matched_lines = find_matching_urls(base_url)
 
 # build a list of the actual URLs
 rad_urls = []
 for i in matched_lines:
-        rad_urls.append(i.split('|')[2])
-        
+        rad_urls.append((str(i).split("'")[1])[len("/docs"):])
+
 # sort the matching url list
 rad_urls.sort()
 
@@ -72,38 +88,38 @@ table += "|" + rad_urls[6].split("/")[3] + "|\n"
 table += "|-----:|:-----:|:-----:|:-----:|:-----:|\n"
 table += "|" + rad_urls[0].split("/")[2].upper() 
 table += "| [" + rad_urls[0].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[0]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[0]),base_url) 
 table += ") ~ [" + rad_urls[1].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[1]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[1]),base_url) + ")"
 table += "| [" + rad_urls[2].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[2]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[2]),base_url) 
 table += ") ~ [" + rad_urls[3].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[3]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[3]),base_url) + ")"
 table += "| [" + rad_urls[4].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[4]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[4]),base_url) 
 table += ") ~ [" + rad_urls[5].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[5]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[5]),base_url) + ")"
 table += "| [" + rad_urls[6].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[6]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[6]),base_url) 
 table += ") ~ [" + rad_urls[7].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[7]),base_url) + ")|\n"
+table += get_topic_number(conn,makesel(rad_urls[7]),base_url) + ")|\n"
 table += "|" + rad_urls[8].split("/")[2].upper() 
 table += "| [" + rad_urls[8].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[8]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[8]),base_url) 
 table += ") ~ [" + rad_urls[9].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[9]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[9]),base_url) + ")"
 table += "| [" + rad_urls[10].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[10]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[10]),base_url) 
 table += ") ~ [" + rad_urls[11].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[11]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[11]),base_url) + ")"
 table += "| [" + rad_urls[12].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[12]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[12]),base_url) 
 table += ") ~ [" + rad_urls[13].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[13]),base_url) + ")"
+table += get_topic_number(conn,makesel(rad_urls[13]),base_url) + ")"
 table += "| [" + rad_urls[14].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[14]),base_url) 
+table += get_topic_number(conn,makesel(rad_urls[14]),base_url) 
 table += ") ~ [" + rad_urls[15].split("/")[4].upper() + "](/t/-/"
-table += get_topic_number(dictionary,makesel(rad_urls[15]),base_url) + ")|\n"
+table += get_topic_number(conn,makesel(rad_urls[15]),base_url) + ")|\n"
 
 # output the augmented RAD document to stdout
 sys.stdout.write(table + "\n" + document_markdown)

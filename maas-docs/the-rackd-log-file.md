@@ -1,0 +1,9 @@
+||2.7|2.8|2.9|2.10|
+|-----:|:-----:|:-----:|:-----:|:-----:|
+Snap|[CLI](/t/the-rackd-log-file-snap-2-7-cli/3466) ~ [UI](/t/the-rackd-log-file-snap-2-7-ui/3467)|[CLI](/t/the-rackd-log-file-snap-2-8-cli/3468) ~ [UI](/t/the-rackd-log-file-snap-2-8-ui/3469)|[CLI](/t/the-rackd-log-file-snap-2-9-cli/3470) ~ [UI](/t/the-rackd-log-file-snap-2-9-ui/3471)|[CLI](/t/the-rackd-log-file-snap-2-10-cli/4338) ~ [UI](/t/the-rackd-log-file-snap-2-10-ui/4339)|
+Packages|[CLI](/t/the-rackd-log-file-deb-2-7-cli/3472) ~ [UI](/t/the-rackd-log-file-deb-2-7-ui/3473)|[CLI](/t/the-rackd-log-file-deb-2-8-cli/3474) ~ [UI](/t/the-rackd-log-file-deb-2-8-ui/3475)|[CLI](/t/the-rackd-log-file-deb-2-9-cli/3477) ~ [UI](/t/the-rackd-log-file-deb-2-9-ui/3476)|[CLI](/t/the-rackd-log-file-deb-2-10-cli/4336) ~ [UI](/t/the-rackd-log-file-deb-2-10-ui/4337)|
+||2.7|2.8|2.9|2.10|
+|-----:|:-----:|:-----:|:-----:|:-----:|
+Snap|[CLI](/t/the-rackd-log-file-snap-2-7-cli/3466) ~ [UI](/t/the-rackd-log-file-snap-2-7-ui/3467)|[CLI](/t/the-rackd-log-file-snap-2-8-cli/3468) ~ [UI](/t/the-rackd-log-file-snap-2-8-ui/3469)|[CLI](/t/the-rackd-log-file-snap-2-9-cli/3470) ~ [UI](/t/the-rackd-log-file-snap-2-9-ui/3471)|[CLI](/t/the-rackd-log-file-snap-2-10-cli/4338) ~ [UI](/t/the-rackd-log-file-snap-2-10-ui/4339)|
+Packages|[CLI](/t/the-rackd-log-file-deb-2-7-cli/3472) ~ [UI](/t/the-rackd-log-file-deb-2-7-ui/3473)|[CLI](/t/the-rackd-log-file-deb-2-8-cli/3474) ~ [UI](/t/the-rackd-log-file-deb-2-8-ui/3475)|[CLI](/t/the-rackd-log-file-deb-2-9-cli/3477) ~ [UI](/t/the-rackd-log-file-deb-2-9-ui/3476)|[CLI](/t/the-rackd-log-file-deb-2-10-cli/4336) ~ [UI](/t/the-rackd-log-file-deb-2-10-ui/4337)|
+placeholder text when i can load it.
