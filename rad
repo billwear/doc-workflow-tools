@@ -14,15 +14,15 @@ selector = sys.argv[2]
 for line in sys.stdin:
     if "rad-begin" in line:
         if selector in line:
-            line = next(sys.stdin)
+            line = next(sys.stdin)  #1
             while "rad-end" not in line:
                 sys.stdout.write(line)
-                line = next(sys.stdin)
+                line = next(sys.stdin)  #2
             continue;
         if selector not in line:
-            line = next(sys.stdin)
             while "rad-end" not in line:
-                line = next(sys.stdin)
+                line = next(sys.stdin) #4
+            line = next(sys.stdin) #3
             continue;
     sys.stdout.write(line)
 

@@ -55,10 +55,10 @@ links = list(find_all(document_markdown, '/t/'))
 for i in links:
 
         # split on closing parend
-        full_link = document_markdown[i:].split(")")
+        full_link = document_markdown[i:].split(")")[0]
 
         # find the topic number part by splitting on "/"
-        topic_part = full_link[0].split("/")[-1]
+        topic_part = full_link.split("/")[-1]
 
         # is the topic_part an "nnnn"?
         if topic_part == "nnnn":
@@ -75,7 +75,7 @@ for i in links:
                 topic_number = get_topic_number(dictionary, selector, base_url)
 
                 # form up the replacement link
-                repl_link = "/t/" + base_url + "/" + topic_number
+                repl_link = "/t/" + base_url + "/" + str(topic_number)
 
                 # form up the original link
                 orig_link = document_markdown[i:where]
