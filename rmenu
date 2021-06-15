@@ -15,7 +15,7 @@ def create_connection(db_file):
     return conn
 
 def makesel(string):
-        selector = "/" + string.split("/",2)[2].rsplit("/",1)[0]
+        selector = string.rsplit("/",1)[0]
         return selector
 
 def find_all(a_str, sub):
@@ -28,7 +28,6 @@ def find_all(a_str, sub):
 
 def get_topic_number(conn, selector, url):
 
-        print(selector, url)
         # create the matching url
         db_url = "/docs" + selector + "/" + url
 
@@ -38,7 +37,7 @@ def get_topic_number(conn, selector, url):
         topic_number = cur.fetchall()
 
         # clean up the topic number on the way out
-        return int(str(topic_number).split('(')[1].split(',')[0])
+        return str(topic_number).split('(')[1].split(',')[0]
 
 def find_matching_urls(base_url):
 
@@ -81,44 +80,44 @@ rad_urls.sort()
 
 # alpha assumptions: two packages/four versions/cli and ui each
 # prepare the menu, cell by cell
-table = "||" + rad_urls[0].split("/")[3]
-table += "|" + rad_urls[2].split("/")[3]
-table += "|" + rad_urls[4].split("/")[3]
-table += "|" + rad_urls[6].split("/")[3] + "|\n"
+table = "||" + rad_urls[0].split("/")[2]
+table += "|" + rad_urls[2].split("/")[2]
+table += "|" + rad_urls[4].split("/")[2]
+table += "|" + rad_urls[6].split("/")[2] + "|\n"
 table += "|-----:|:-----:|:-----:|:-----:|:-----:|\n"
-table += "|" + rad_urls[0].split("/")[2].upper() 
-table += "| [" + rad_urls[0].split("/")[4].upper() + "](/t/-/"
+table += "|" + rad_urls[0].split("/")[1].upper() 
+table += "| [" + rad_urls[0].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[0]),base_url) 
-table += ") ~ [" + rad_urls[1].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[1].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[1]),base_url) + ")"
-table += "| [" + rad_urls[2].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[2].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[2]),base_url) 
-table += ") ~ [" + rad_urls[3].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[3].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[3]),base_url) + ")"
-table += "| [" + rad_urls[4].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[4].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[4]),base_url) 
-table += ") ~ [" + rad_urls[5].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[5].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[5]),base_url) + ")"
-table += "| [" + rad_urls[6].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[6].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[6]),base_url) 
-table += ") ~ [" + rad_urls[7].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[7].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[7]),base_url) + ")|\n"
-table += "|" + rad_urls[8].split("/")[2].upper() 
-table += "| [" + rad_urls[8].split("/")[4].upper() + "](/t/-/"
+table += "|" + rad_urls[8].split("/")[1].upper() 
+table += "| [" + rad_urls[8].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[8]),base_url) 
-table += ") ~ [" + rad_urls[9].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[9].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[9]),base_url) + ")"
-table += "| [" + rad_urls[10].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[10].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[10]),base_url) 
-table += ") ~ [" + rad_urls[11].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[11].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[11]),base_url) + ")"
-table += "| [" + rad_urls[12].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[12].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[12]),base_url) 
-table += ") ~ [" + rad_urls[13].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[13].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[13]),base_url) + ")"
-table += "| [" + rad_urls[14].split("/")[4].upper() + "](/t/-/"
+table += "| [" + rad_urls[14].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[14]),base_url) 
-table += ") ~ [" + rad_urls[15].split("/")[4].upper() + "](/t/-/"
+table += ") ~ [" + rad_urls[15].split("/")[3].upper() + "](/t/-/"
 table += get_topic_number(conn,makesel(rad_urls[15]),base_url) + ")|\n"
 
 # output the augmented RAD document to stdout
