@@ -62,7 +62,7 @@ for i in links:
         full_link = document_markdown[i:].split(")")[0]
 
         # find the topic number part by splitting on "/"
-        topic_part = full_link.split("/")[-1]
+        topic_part = full_link.split("/")[-1].split("#")[0]
 
         # is the topic_part an "nnnn"?
         if topic_part == "nnnn":

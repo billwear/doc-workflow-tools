@@ -159,7 +159,6 @@ file_contents = file_contents.ljust(9000)
 data = {}
 
 # place the markdown in the appropriate json keys
-data["title"] = title_slug
 data["raw"] = file_contents
 
 # open a temporary json file to store the markdown as json
