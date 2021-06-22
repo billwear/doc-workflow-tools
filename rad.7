@@ -36,9 +36,9 @@ Selectors must be of the form "/vsn/interface," e.g., "/2.8/UI."  This is the fi
 Any block of text which is enclosed between RAD selectors that match the input selector is also transferred to stdout.  Any blocks enclosed between selectors that do not match are not transferred.  The RAD block markers are never transferred.
 .Pp
 Any block of text that is not enclosed between RAD selectors is automatically transferred to stdout.
-.Sh ERRORS
+.Sh RETURN VALUES
 .Nm
-currently generates two errors: ENOOPT=2 when the command line options string is incorrect, and EINVAL=3 when a command line option cannot be parsed.
+returns EINVAL if the argument list is not the correct length, or if any of the values are corrupted in any way.
 .\" .Sh BUGS              \" Document known, unremedied bugs
 .Sh SEE ALSO           \" Document history if command behaves in a unique manner
 rlink(7), rmenu(7)

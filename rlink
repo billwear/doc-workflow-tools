@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 
-import os, sys, sqlite3
+## rlink 1.0, stamped 11:52 22 Jun 2021
+## coded by bill.wear@canonical.com
+
+import os, sys, sqlite3, errno
 from sqlite3 import Error
 
+# function to create sqlite database connection
 def create_connection(db_file):
     conn = None
     try:
@@ -13,6 +17,7 @@ def create_connection(db_file):
 
     return conn
 
+# function to find all matching substrings in a string
 def find_all(a_str, sub):
         start = 0
         while True:
@@ -21,6 +26,7 @@ def find_all(a_str, sub):
                 yield start
                 start += len(sub) # use start += 1 to find overlapping matches
 
+# function to find the topic number for a url/selector combo in the rad database
 def get_topic_number(conn, selector, url):
 
         # create the matching url
@@ -33,20 +39,34 @@ def get_topic_number(conn, selector, url):
 
         # clean up the topic number on the way out
         return int(str(topic_number).split('(')[1].split(',')[0])
-                                    
+
+# usage message
 def print_usage():
         print("usage: rlink -s selector")
         
 # rudimentary command line handling
 if len(sys.argv) != 3 or sys.argv[1] != "-s":
         print_usage()
-        sys.exit(2)
+        sys.exit(errno.EINVAL)
 
 # peel the selector out of the argument list
 selector = sys.argv[2]
 
+# preset the dbfile to "none" so we know if there's a error
+dbfile = None
+
+# find the db file
+if os.path.isfile("./rad.db") == True:
+    dbfile = "./rad.db"
+elif os.path.isfile("/etc/rad/rad.db") == True:
+    dbfile = "/etc/rad/rad.db"
+else:
+    print("Error when trying to access RAD database:", os.strerror(errno.ENOENT))
+    print("rad: exiting")
+    sys.exit(errno.ENOENT)
+
 # make a connection to the rad.db database
-conn = create_connection(r"./rad.db")
+conn = create_connection(dbfile)
 
 # pull in the document markdown from stdin; gulping it because links sometimes 
 # span lines; won’t handle that for alpha, but need to be prepared for it

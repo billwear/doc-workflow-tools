@@ -16,7 +16,6 @@
 .Nm
 .\".Op Fl abcd              \" [-abcd]
 .Op Fl s Ar selector         \" [-a path]
-.Op Fl d Ar /path/to/dictionary         \" [-a path]
 .\".Op Ar file              \" [file]
 .\".Op Ar                   \" [file ...]
 .\".Ar arg0                 \" Underlined argument - use .Ar anywhere to underline
@@ -26,33 +25,103 @@
 converts all RAD doc links in stdin to point to the correct discourse topic numbers.
 .\".Ar underlined text .
 .Pp                      \" Inserts a space
-RAD (Reader Adaptive Documentation) documents for a given selector (e.g, "version-2.8") should point at other RAD documents that match the same selector. 
+.Pp                      \" Inserts a space
+RAD (Reader Adaptive Documentation) text contains markup that indicate which blocks of text should be printed and which should be suppressed.  RAD blocks are marked with
+.Ar rad-begin
+and
+.Ar rad-end
+placed by themselves on a single line, accompanied by one or more RAD selectors.
 .Pp
-For example, if a RAD file "Network Topology," with selector "/snap/2.8/ui," refers to another file in the RAD doc set called "Subnet Configuration," there will be one copy of each file for each RAD selector.  The link to "Subnet Configuration" must be adjusted to point to the "/snap/2.8/ui" version of that file.  This is done by changing the discourse topic number in the embedded link.
+Selectors must be of the form
+.Ar /vsn/interface
+(like
+.Ar /2.8/UI
+for example). This is the first part of the document URL at https://maas.io/docs, so that website can be used as a source of correct selectors.  
+.Pp
+Any block of text which is enclosed between RAD selectors that match the input selector is also transferred to stdout.  Any blocks enclosed between selectors that do not match are not transferred.  Any block of text that is not enclosed between RAD selectors is automatically transferred to stdout.
+.Pp
+The RAD block markers are never transferred.
+.Pp
+RAD also contains links of the form
+.Ar /t/<title-slug>/<topic-number>
+-- which are meant to link to another document of the correct RAD version.  The MAAS discourse server uses
+.Ar <topic-number>
+to select the correct link.  In the RAD topology, documents for a given selector (like
+.Ar version-2.8
+for example) should point at other RAD documents that match the same selector. 
+.Pp
+For example, if a RAD file
+.Ar Network Topology
+with selector
+.Ar /2.8/ui
+refers to another file in the RAD doc set called
+.Ar Subnet Configuration,
+there will be one copy of
+.Ar Subnet Configuration
+for each RAD selector.  This link to
+.Ar Subnet Configuration
+must be adjusted to point to the
+.Ar /2.8/ui
+version of that file.  This is done by changing the discourse topic number in the embedded link.
 .Pp
 .Nm
-uses the main index document to find the correct topic number.  The
-.Ar selector
-argument is matched against the embedded URL list to retrieve the topic number. When using 
-.Nm
-, the selector should be the RAD part of the URL of each document, e.g., "/snap/2.8/ui."  When preparing the RAD document to be corrected by
-.Nm
-, the last part of the document URL should be used in place of the normal discourse links, e.g., "/t/about-maas/nnnn."  The "nnnn" is added as four literal "n" characters, so that
-.Nm
- knows to look up the corresponding topic number, using the selector and the last part of the document URL to find it.
+uses the
+.Ar RAD database
+to find the correct topic number so that it can adjust links in the standard output to point to the correct version of all references.
 .Pp
-You can find the correct URL by looking at the document and using the last subdirectory on the documents URL -- the text after the last "/" slash.  For example, if you want
+When preparing the RAD document for
 .Nm
- to substitute each RAD version with the correct link for "About MAAS," you would find any version of the document on the MAAS documentation website, pull of the last subdir of the URL ("about-maas"), and place "/t/about-maas/nnnn" in your master document.   
+to correct, the
+.Ar <title-slug>
+should be used in place of the normal discourse link, with an
+.Ar nnnn
+added on the end to signify that a correct topic number is wanted.  For example,
+.Nm
+will correct the link
+.Ar /t/about-maas/nnnn
+to point to the version of
+.Ar About MAAS
+that corresponds to the selector passed to
+.Nm
+on the command line.  Note that the
+.Ar nnnn
+is four literal "n" characters, not some substituted integer.
+.Pp
+You can find the correct
+.Ar <title-slug>
+by looking at the document and using the last subdirectory on the documents URL -- the text after the last "/" slash.  For example, if you want
+.Nm
+to substitute each RAD version with the correct link for the
+.Ar About MAAS
+document, you would find any version of the document on the MAAS documentation website, pull off the last subdir of the URL (in this case,
+.Ar about-maas
+is the appropriate slug), and place
+.Ar /t/about-maas/nnnn
+in your master document.   
 .Pp
 Note that
 .Nm
- will have to be run once for each RAD variant you want to generate.
+will have to be run once for each RAD variant you want to generate.
 .Pp
 .Nm
 outputs the corrected RAD text to stdout.
 .Sh FILES          \" Section Header - required - don't modify
-.Ar https://discourse.maas.io/t/maas-documentation/25
-is the main index file.  It is a special discourse documentation file (one per docset) which contains all of the navigation, a URL mapping table that maps discourse topic addresses to visible URLs, and a redirect table that routes obsolete URLs to current URLs.  The URL mapping table contained in this file is sufficient to act as a companion dictionary for other rad tools that need to look up topic numbers.
-.\" .Sh BUGS              \" Document known, unremedied bugs
-.\" .Sh HISTORY           \" Document history if command behaves in a unique manner
+.Ar /etc/rad/rad.db
+is the RAD database. See rdbload(7) for details on this file.
+.Pp
+Note that 
+.Nm
+looks for a local copy of
+.Ar rad.db
+in the current working directory, before seeking the system database (above), in case you want to use a modified version for special cases.
+.Sh ERRORS              \" Document known, unremedied bugs
+.Nm
+generates
+.Ar EINVAL
+if the command line arguments are unintelligible, and
+.Ar ENOENT
+if the database cannot be found at
+.Ar /etc/rad/rad.db
+nor in the current working directory.
+.Sh SEE ALSO           \" Document history if command behaves in a unique manner
+rad(7), rmenu(7), rdbload(7)

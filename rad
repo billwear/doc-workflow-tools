@@ -4,10 +4,7 @@
 ### coded by bill.wear@canonical.com
 
 # needed for argv, stdin, stdout
-import sys
-
-ENOOPT = 2
-EINVAL = 3
+import sys, errno
 
 # simple usage statement
 def print_usage():
@@ -16,14 +13,14 @@ def print_usage():
 # there's only one CL option, so this check still works okay
 if len(sys.argv) != 3 or sys.argv[1] != "-s":
     print_usage()
-    sys.exit(ENOOPT)
+    sys.exit(errno.EINVAL)
 
 # selector *must* be at position 2 for this tool
 try:
     selector = sys.argv[2]
 except:
     print_usage()
-    sys.exit(EINVAL)
+    sys.exit(errno.EINVAL)
 
 # loop through the incoming text lines
 for line in sys.stdin:
