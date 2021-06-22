@@ -25,12 +25,20 @@
 converts stdin to RAD text and prints its results on stdout.
 .\".Ar underlined text .
 .Pp                      \" Inserts a space
-RAD (Reader Adaptive Documentation) text contains selectors, which indicate which blocks of text should be printed and which should be suppressed.
+RAD (Reader Adaptive Documentation) text contains markup that indicate which blocks of text should be printed and which should be suppressed.  RAD blocks are marked with
+.Ar rad-begin
+and
+.Ar rad-end
+placed by themselves on a single line, accompanied by one or more RAD selectors.
+.Pp
+Selectors must be of the form "/vsn/interface," e.g., "/2.8/UI."  This is the first part of the document URL at https://maas.io/docs, so that website can be used as a source of correct selectors.  
+.Pp
+Any block of text which is enclosed between RAD selectors that match the input selector is also transferred to stdout.  Any blocks enclosed between selectors that do not match are not transferred.  The RAD block markers are never transferred.
 .Pp
 Any block of text that is not enclosed between RAD selectors is automatically transferred to stdout.
-.Pp
-Any block of text which is enclosed between RAD selectors that match the input selector is also transferred to stdout.  Any blocks enclosed between selectors that do not match is not transferred.
-.Pp
-Selectors must be of the form "/pkg/vsn/interface," e.g., "/snap/2.8/UI."  This is the first part of the document URL at https://maas.io/docs, so that website can be used as a source of correct selectors.  
+.Sh ERRORS
+.Nm
+currently generates two errors: ENOOPT=2 when the command line options string is incorrect, and EINVAL=3 when a command line option cannot be parsed.
 .\" .Sh BUGS              \" Document known, unremedied bugs
-.\" .Sh HISTORY           \" Document history if command behaves in a unique manner
+.Sh SEE ALSO           \" Document history if command behaves in a unique manner
+rlink(7), rmenu(7)
