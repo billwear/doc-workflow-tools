@@ -3,7 +3,7 @@
 ## rdbload version 1.0, stamped 11:45 23 June 2021
 ## coded by bill.wear@canonical.com
 
-import sqlite3, sys, os, errno, getopt
+import sqlite3, sys, os, errno, getopt, subprocess
 from sqlite3 import Error
 
 ## usage message
@@ -52,7 +52,7 @@ def read_index_topic(auth_file, index_topic_number, url, topic_number):
 ## create a link in the table from the passed info
 def create_link(conn, link):
 
-    sql = ''' INSERT INTO links(url, topic_number) VALUES(?,?) '''
+    sql = ''' INSERT INTO links(url, topic_number, last_pushed, current_timestamp) VALUES(?,?,?,?) '''
 
     cur = conn.cursor()
     cur.execute(sql, link)
@@ -111,7 +111,9 @@ topic_number = []
 sql_create_links_table = """CREATE TABLE IF NOT EXISTS links (
                                 id integer PRIMARY KEY,
                                 url text,
-                                topic_number integer
+                                topic_number integer,
+                                last_pushed text,
+                                current_timestamp text
                             ); """
 
 ## create a connection to the database
@@ -132,5 +134,11 @@ read_index_topic(auth_file,index_topic_number,url,topic_number)
 
 ## really simple loop that builds the database from the parsed index file URL table
 for u, t in zip(url, topic_number):
-    link = (u, t)
+    print("trying", u)
+    if "2.7" in u or "2.8" in u:
+        print("rejected, 2.8 or 2.7 item")
+        continue
+    ts = subprocess.getoutput("./rstamp -n " + t)
+    print("url", u, "ts:", ts)
+    link = (u, t, ts, ts)
     create_link(conn, link)
