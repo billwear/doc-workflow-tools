@@ -14,6 +14,7 @@ def get_topic(config_data, topic):
         proc = subprocess.Popen(
             [
                 "curl",
+                "-s",
                 "-X",
                 "GET",
                 "-H",
@@ -51,6 +52,7 @@ def get_post(config_data, post_id):
         proc = subprocess.Popen(
             [
                 "curl",
+                "-s",
                 "-X",
                 "GET",
                 "-H",

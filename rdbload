@@ -52,7 +52,7 @@ def read_index_topic(auth_file, index_topic_number, url, topic_number):
 ## create a link in the table from the passed info
 def create_link(conn, link):
 
-    sql = ''' INSERT INTO links(url, topic_number, last_pushed, current_timestamp) VALUES(?,?,?,?) '''
+    sql = ''' INSERT INTO links(url, topic_number, last_pushed, last_edited, last_editor) VALUES(?,?,?,?,?) '''
 
     cur = conn.cursor()
     cur.execute(sql, link)
@@ -113,7 +113,8 @@ sql_create_links_table = """CREATE TABLE IF NOT EXISTS links (
                                 url text,
                                 topic_number integer,
                                 last_pushed text,
-                                current_timestamp text
+                                last_edited text,
+                                last_editor text
                             ); """
 
 ## create a connection to the database
@@ -132,13 +133,20 @@ else:
 ## read and parse the index file URL table into internal lists
 read_index_topic(auth_file,index_topic_number,url,topic_number)
 
+entries = len(url)
+cleared = 0
+lp = "not set"
+
 ## really simple loop that builds the database from the parsed index file URL table
 for u, t in zip(url, topic_number):
-    print("trying", u)
+    cleared+=1
+    percent = round(cleared/entries, 3)
+    print("item #", cleared, " = ", percent, "% complete", end='\r')
     if "2.7" in u or "2.8" in u:
-        print("rejected, 2.8 or 2.7 item")
         continue
-    ts = subprocess.getoutput("./rstamp -n " + t)
-    print("url", u, "ts:", ts)
-    link = (u, t, ts, ts)
+    ts,le= subprocess.getoutput("./rletu -n " + t).split(",")
+    print("ts", ts, "le", le)
+    if ts == 0 and le == 0:
+        continue
+    link = (u, t, ts, lp, le)
     create_link(conn, link)
