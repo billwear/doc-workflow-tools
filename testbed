@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+
+import maas_discourse
+
+from yaml import load, dump
+
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
+
+# read config file to get api-key, api-usr, and discourse url
+try:
+    cfile = open("/etc/rad/dc.yaml", "r")
+except:
+    print('dpush: cannot open', path_to_config)
+    print("dpush: exiting")
+    sys.exit(4)
+config_data = load(cfile, Loader=Loader)
+cfile.close()
+
+while 1:
+    error_number, topic_json = maas_discourse.md_api_get_topic(1515, config_data)
+    print( topic_json )

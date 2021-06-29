@@ -135,18 +135,38 @@ read_index_topic(auth_file,index_topic_number,url,topic_number)
 
 entries = len(url)
 cleared = 0
-lp = "not set"
+rotor = 0
 
 ## really simple loop that builds the database from the parsed index file URL table
 for u, t in zip(url, topic_number):
-    cleared+=1
-    percent = round(cleared/entries, 3)
-    print("item #", cleared, " = ", percent, "% complete", end='\r')
+    if rotor == 0:
+        rotor_string = "/"
+    elif rotor == 1:
+        rotor_string = "-"
+    elif rotor == 2:
+        rotor_string = "\\"
+    elif rotor == 3:
+        rotor_string = "|"
+        rotor = -1
+    rotor += 1
+    percent = round(cleared / entries, 3)
+    print(rotor_string, str(percent) + "% complete", end='\r')
     if "2.7" in u or "2.8" in u:
+        entries =- 1
         continue
-    ts,le= subprocess.getoutput("./rletu -n " + t).split(",")
-    print("ts", ts, "le", le)
-    if ts == 0 and le == 0:
-        continue
-    link = (u, t, ts, lp, le)
+    ts = subprocess.getoutput("./rlet -n " + t)
+    if rotor == 0:
+        rotor_string = "/"
+    elif rotor == 1:
+        rotor_string = "-"
+    elif rotor == 2:
+        rotor_string = "\\"
+    elif rotor == 3:
+        rotor_string = "|"
+        rotor = -1
+    rotor += 1
+    print(rotor_string, str(percent) + "% complete", end='\r')
+    le = subprocess.getoutput("./rleu -n " + t)
+    print(rotor_string, str(percent) + "% complete", end='\r')
+    link = (u, t, ts, ts, le)
     create_link(conn, link)
