@@ -1,0 +1,129 @@
+#!/usr/bin/python3
+
+import getopt, errno, sys
+from io import StringIO
+
+unit_test = True
+
+# what do i need this program to do?
+"""
+1. This program processes RAD 2.0 selectors, extracting RAD blocks of text
+and determining if they match any of the specified selectors for this 
+run of the program. 
+"""
+
+# how do i process RAD 2.0 selectors?
+# what is a RAD 2.0 selector?
+selector_start = "begin-rad" # /snap/3.0/ui, etc....
+selector_end   = "end-rad"   # with no RAD URLs on the line
+
+# how do i recognize a selector?
+def line_is_rad( line ):
+    if selector_start in line:
+        return True
+    else:
+        return False
+    
+# how do i recognize the end of a rad block?
+def line_is_rad_end( line ):
+    if selector_end in line:
+        return True
+    else:
+        return False
+    
+# how do i extract a rad block?
+def extract_rad_block( buffer ):
+    str1 = StringIO( buffer )
+    block = ""
+    while True:
+        line = str1.readline()
+        if line_is_rad(line):
+            block += line
+            line = str1.readline()
+            while not line_is_rad_end(line):
+                block += line
+                line = str1.readline()
+            return block
+
+# how do i find a specified selector in a rad block?
+def selector_in(rad_block, selector):
+    for i in selector:
+        if i in rad_block:
+            return True
+    return False
+
+# how is the selector specified?
+def usage():
+    print("make_rad -s selector,selector,selector,...")
+    
+# how do i get the selectors from the command line?
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "s:")
+except getopt.GetoptError as err:
+    print(err)
+    sys.exit(errno.EINVAL)
+
+# how do i know if they didn't type enough options?
+if len(sys.argv) < 2:
+    usage()
+    sys.exit(errno.EINVAL)
+
+# how do i pull out the selector set of options?
+selector_string = ""
+for o, a in opts:
+    if o == "-s":
+        selector_string = a
+    else:
+        assert False
+selectors = selector_string.split(",")
+
+# how do i process a block that's in?
+def add_block( rad_block ):
+    str1 = StringIO( rad_block )
+    throwaway = str1.readline()
+    block = ""
+    while True:
+        line = str1.readline()
+        if line == "":
+            return block
+        block += line
+    
+
+### how do i process lines?
+####
+#### what kind of selector is <!-- snap-3-0-ui ... snap-3-0-ui --> ?
+##### how do i process a RAD 1.0 selector?
+###### how do i avoid distorting other HTML comments?
+###### why don't i just switch to RAD 2.0 selectors?
+#### what kind of selector is begin-rad /snap/3.0/ui ... /snap/3.0/ui end-rad ?
+##### how do i process a RAD 2.0 selector?
+###### how do i find the next rad-begin line?
+###### how do i find the matching rad-end line?
+###### what do i do with rad lines when i find them?
+#### what kind of selector is the format yet to be determined?
+## how do i multiplex links?
+## how do i build a switcher?
+## how do i manage targets?
+## how do i publish older versions?
+## how do i publish current versions?
+## how do i publish to html?
+## how do i publish to other formats?
+## how do i find changes?
+## how do notify the editor of the changes?
+## how do i retrieve the changes for the editor?
+## how do i help the editor spot the differences?
+
+# how do i test these routines?
+if unit_test == True:
+    text_block = ""
+    print("passed selector string: ", selector_string)
+    print("selectors list:", selectors)
+    buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some text\nHere is some more text\nend-rad\nsome more stuff\n"
+    rad_block = extract_rad_block( buffer )
+    print(rad_block)
+    if selector_in( rad_block, selectors):
+        text_block += add_block( rad_block )
+    else:
+        print("this rad block matches no selector")
+    print("included text block")
+    print(text_block)
