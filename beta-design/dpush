@@ -170,5 +170,3 @@ response = subprocess.check_output(
 
 # remove the temporary json file
 os.remove("foo.json")
-
-

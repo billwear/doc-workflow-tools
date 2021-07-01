@@ -1,26 +1,149 @@
 #!/usr/bin/python3
 
+"""
+maas_discourse: convenience functions for accessing the MAAS docs API; note that the functions
+containing "_api_" in their name access the API, those without work on passed data instead.
+
+ + md_get_last_edit_timestamp(revision_json):
+   -- accepts: latest revision JSON for first post of a given topic
+      (note that in the MAAS doc world, the first post is the actual documentation)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the discourse timestamp of the last edit, as a string (in Zulu time)
+ + md_get_last_editor_username(revision_json):
+   -- accepts: latest revision JSON for first post of a given topic
+      (note that in the MAAS doc world, the first post is the actual documentation)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the username of the user who last edited the first post, as a string
+ + md_api_get_topic(topic_id, credentials):
+   -- accepts: a discourse topic ID (integer), and a set of API credentials (dictionary)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the full JSON representation of the topic
+ + md_api_get_latest_revision(topic_id, credentials):
+   -- accepts: a discourse topic ID (integer), and a set of API credentials (dictionary)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the latest revision JSON for the first post of the given topic
+ + md_api_get_post(post_id, credentials):
+   -- accepts: a discourse post ID (integer), and a set of API credentials (dictionary)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the full JSON representation of the post
+ + md_api_put_post(post_id, put_buffer, credentials):
+   -- accepts: a discourse post ID (integer), a buffer containing properly formatted JSON,
+      and a set of API credentials (dictionary)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and the JSON that was actually written to post post_id
+ + md_api_has_been_updated(topic_id, interval, credentials):
+   -- accepts: a discourse topic ID (integer), an interval in hours (integer), 
+      and a set of API credentials (dictionary)
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a boolean indicating whether topic_id has been updated in the last
+      interval hours 
+ + md_get_credentials(credential_file_path):
+   -- accepts: a file path to a valid MAAS docs API credential set, which includes 
+      a username, an API key, and a valid MAAS docs API URL
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a dictionary containing the API credentials
+ + md_get_post_number(topic_json):
+   -- accepts: the full JSON representation of a topic
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and an integer corresponding to the post number
+ + md_get_markdown_content(post_json):
+   -- accepts: the full JSON representation of a post
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a string containing the markdown content of the post (essentially, the 
+      markdown corresponding to the discourse doc page content
+ - md_is_later_than(timestamp_1, timestamp_2):
+   -- accepts: two timestamps, as discourse timestamp strings
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a boolean indicating whether timestamp1 is later than timestamp2
+ - md_is_earlier_than(timestamp_1, timestamp_2):
+   -- accepts: two timestamps, as discourse timestamp strings
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a boolean indicating whether timestamp1 is earlier than timestamp2
+ - md_is_identical_to(timestamp_1, timestamp_2):
+   -- accepts: two timestamps, as discourse timestamp strings
+   -- returns: a tuple containing an error code (drawn from the errno library), 
+      and a boolean indicating whether timestamp1 is identical to timestamp2
+"""
+
+# testing with throwaway topics 1911 and 1912
+test_topic_number_1 = 1911
+test_topic_number_2 = 1912
+
+### don't copy and blog above this line, keep topic numbers private
 
 import maas_discourse
 
-from yaml import load, dump
+# load the MAAS docs API credentials
+error, credentials = maas_discourse.md_get_credentials("/etc/rad/dc.yaml")
 
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
+# get test topic number 1
+error, topic_json_1 = maas_discourse.md_api_get_topic(test_topic_number_1, credentials) 
+
+# get test topic number 2
+error, topic_json_2 = maas_discourse.md_api_get_topic(test_topic_number_2, credentials) 
+
+# get post_ids for first post of each test topic
+error, post_id_1 = maas_discourse.md_get_post_number(topic_json_1)
+error, post_id_2 = maas_discourse.md_get_post_number(topic_json_2)
+
+# get post_json for first post of each test topic
+error, post_json_1 = maas_discourse.md_api_get_post(post_id_1, credentials)
+error, post_json_2 = maas_discourse.md_api_get_post(post_id_2, credentials)
+
+# get markdown text for first post of each test topic
+error, markdown_text_1 = maas_discourse.md_get_markdown_content(post_json_1)
+error, markdown_text_2 = maas_discourse.md_get_markdown_content(post_json_2)
+
+# get revision JSON stream for each test topic
+error, revision_json_1 = maas_discourse.md_api_get_latest_revision(test_topic_number_1, credentials)
+error, revision_json_2 = maas_discourse.md_api_get_latest_revision(test_topic_number_2, credentials)
+
+# get last edited timestamp for each test topic
+error, le_timestamp_1 = maas_discourse.md_get_last_edit_timestamp(revision_json_1)
+error, le_timestamp_2 = maas_discourse.md_get_last_edit_timestamp(revision_json_2)
+
+# get last editor username for each test topic
+error, last_editor_1 = maas_discourse.md_get_last_editor_username(revision_json_1)
+error, last_editor_2 = maas_discourse.md_get_last_editor_username(revision_json_2)
+
+# check whether either post has been edited in the last 72 hours
+edited_last_72_hours_1 = maas_discourse.md_api_has_been_updated(test_topic_number_1, 72, credentials)
+edited_last_72_hours_2 = maas_discourse.md_api_has_been_updated(test_topic_number_2, 72, credentials)
+
+new_text_1 = "Test post #1: This is a very elegant test of the maas_discourse Python import library.  This was all done in an automated way."
+new_text_2 = "Test post #2: Lorum ipsem, and all that rot."
+
+# put the new text into each of the test posts
+error, post_json_2 = maas_discourse.md_api_put_post(post_id_2, new_text_2, credentials)
+error, post_json_1 = maas_discourse.md_api_put_post(post_id_1, new_text_1, credentials)
+
+# re-get the latest revision data from each test post
+error, new_rev_json_1 = maas_discourse.md_api_get_latest_revision(test_topic_number_1, credentials)
+error, new_rev_json_2 = maas_discourse.md_api_get_latest_revision(test_topic_number_2, credentials)
+
+# get the new last edited timestamp for each test topic
+error, new_le_timestamp_1 = maas_discourse.md_get_last_edit_timestamp(new_rev_json_1)
+error, new_le_timestamp_2 = maas_discourse.md_get_last_edit_timestamp(new_rev_json_2)
+
+# get the new last editor username for each test topic
+error, new_last_editor_1 = maas_discourse.md_get_last_editor_username(new_rev_json_1)
+error, new_last_editor_2 = maas_discourse.md_get_last_editor_username(new_rev_json_2)
+
+# re-check whether either post has been edited in the last 72 hours
+new_ed_last_72_hours_1 = maas_discourse.md_api_has_been_updated(test_topic_number_1, 72, credentials)
+new_ed_last_72_hours_2 = maas_discourse.md_api_has_been_updated(test_topic_number_2, 72, credentials)
+
+# compare timestamps of the two topics before
+error, oneAfterTwo = maas_discourse.md_is_later_than(le_timestamp_1, le_timestamp_2)
+error, oneBeforeTwo = maas_discourse.md_is_later_than(new_le_timestamp_1, new_le_timestamp_2)
+
+# compare before and after timestamps of the two revisions of each test post
+print("has test topic 1 been edited in the last 72 hours?")
+print("before:", edited_last_72_hours_1, "after:", new_ed_last_72_hours_1)
+print("has test topic 2 been edited in the last 72 hours?")
+print("before:", edited_last_72_hours_2, "after:", new_ed_last_72_hours_2)
+print("is test topic 1 timestamp later than test topic 2?")
+print("before updating, is one later than two?", oneAfterTwo)
+print("after updating, is one earlier than two?", oneBeforeTwo)
 
 
-# read config file to get api-key, api-usr, and discourse url
-try:
-    cfile = open("/etc/rad/dc.yaml", "r")
-except:
-    print('dpush: cannot open', path_to_config)
-    print("dpush: exiting")
-    sys.exit(4)
-config_data = load(cfile, Loader=Loader)
-cfile.close()
-
-while 1:
-    error_number, topic_json = maas_discourse.md_api_get_topic(1515, config_data)
-    print( topic_json )

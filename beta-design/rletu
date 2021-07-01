@@ -76,7 +76,7 @@ def get_latest_revision_of_post(config_data, post_id):
             post_json = json.loads(output)
         except:
             print("topic " + str(topic) + " doesn't exist; exiting")
-            return("ENOEXIST")
+            return("errno.ENOEXIST")
         try:
             if post_json["error_type"] == "rate_limit":
                 wait_time = post_json["extras"]["wait_seconds"]
