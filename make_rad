@@ -2,14 +2,13 @@
 
 import getopt, errno, sys
 from io import StringIO
+import maas_discourse
 
-unit_test = True
+test = True
 
 # what do i need this program to do?
 """
-1. This program processes RAD 2.0 selectors, extracting RAD blocks of text
-and determining if they match any of the specified selectors for this 
-run of the program. 
+1. This program processes lines in a RAD 2.0 encoded file.  Non-rad-encoded blocks of text are passed on to the output.  RAD-encoded blocks of text that match the selectors specified on the command line are passed to the output, without the RAD encoding markup.  RAD-encoded blocks of text that do not match the selectors specified on the command line are not passed to the output.
 """
 
 # how do i process RAD 2.0 selectors?
@@ -31,24 +30,10 @@ def line_is_rad_end( line ):
     else:
         return False
     
-# how do i extract a rad block?
-def extract_rad_block( buffer ):
-    str1 = StringIO( buffer )
-    block = ""
-    while True:
-        line = str1.readline()
-        if line_is_rad(line):
-            block += line
-            line = str1.readline()
-            while not line_is_rad_end(line):
-                block += line
-                line = str1.readline()
-            return block
-
 # how do i find a specified selector in a rad block?
-def selector_in(rad_block, selector):
+def selector_in(line, selector):
     for i in selector:
-        if i in rad_block:
+        if i in line:
             return True
     return False
 
@@ -77,31 +62,118 @@ for o, a in opts:
         assert False
 selectors = selector_string.split(",")
 
-# how do i process a block that's in?
-def add_block( rad_block ):
-    str1 = StringIO( rad_block )
-    throwaway = str1.readline()
-    block = ""
+# how do i process lines?
+def process_lines( buffer, selector ):
+    textglob = ""
+    str1 = StringIO( buffer )
     while True:
         line = str1.readline()
-        if line == "":
-            return block
-        block += line
-    
+        # how do i handle rad blocks on-the-fly?
+        if line != "":
+            # how do i know if it's a rad block?
+            if line_is_rad( line ):
+                # how do i know if the selector matches?
+                if selector_in( line, selector ):
+                    # how do i include selected RAD lines?
+                    while True:
+                        line = str1.readline()
+                        # where do i check whether a link needs to be muxed?
+                        if line_has_rad_mux_link( line ):
+                            muxed_line = fix_mux_links( line, selector )
+                            textglob += muxed_line
+                        elif line_is_rad_end( line ):
+                            break;
+                        else:
+                            textglob += line
+                else:
+                    # how do i exclude de-selected RAD lines?
+                    while True:
+                        line = str1.readline()
+                        if line_is_rad_end( line ):
+                           break;
+            else:
+                # where do i check whether a link needs to be muxed?
+                if line_has_rad_mux_link( line ):
+                    muxed_line = fix_mux_links( line, selector )
+                    textglob += muxed_line
+                else:
+                    textglob += line
+        else:
+            return( textglob )
 
-### how do i process lines?
-####
-#### what kind of selector is <!-- snap-3-0-ui ... snap-3-0-ui --> ?
-##### how do i process a RAD 1.0 selector?
-###### how do i avoid distorting other HTML comments?
-###### why don't i just switch to RAD 2.0 selectors?
-#### what kind of selector is begin-rad /snap/3.0/ui ... /snap/3.0/ui end-rad ?
-##### how do i process a RAD 2.0 selector?
-###### how do i find the next rad-begin line?
-###### how do i find the matching rad-end line?
-###### what do i do with rad lines when i find them?
-#### what kind of selector is the format yet to be determined?
 ## how do i multiplex links?
+# how do i recognize a link that needs to be multiplexed?
+def line_has_rad_mux_link( line ):
+    if "/nnnn" in line:
+        return True
+    else:
+        return False
+
+## how do i mux a link?
+# what does a mux link look like?
+mux_link_template = "/t/base_url/nnnn"
+
+# how do i fix a mux link?
+def fix_mux_links( line, selector ):
+    # how do i separate multiple mux links in the same line?
+    mux_links = line.split("/t")
+    for i in mux_links:
+        # how do i tell a mux link from just plan text?
+        if "/nnnn" in i:
+            # how do i get the base url out of the mux link?
+            base_url = i.split("/")[1]
+            # how do i find the topic number for this base url and selector?
+            
+
+# how DO i pull the url table from the discourse index topic, so i can make a dictionary?
+def pull_discourse_url_table( discourse_index_topic_number ):
+    # how do i get the API credentials, so i can pull the index topic?
+    error, credentials = maas_discourse.md_get_credentials("/etc/rad/dc.yaml")
+
+    # how do i pull the discourse_index_topic_number?
+    error, index_topic_json = maas_discourse.md_api_get_topic( discourse_index_topic_number, credentials )
+
+    # how do i get the main post number, so i can pull it?
+    error, post_number = maas_discourse.md_get_post_number( index_topic_json )
+
+    # how do i pull the main post, so i can pull the URL table out of its markdown?
+    error, post_json = maas_discourse.md_api_get_post( post_number, credentials )
+
+    # how do I get just the markdown, so i can pull the URL table out of it?
+    error, post_markdown = maas_discourse.md_get_markdown_content( post_json )
+
+    # how do i pull the URL table out by itself, so i can return it?
+    url_table = post_markdown[post_markdown.find('## URLs'):post_markdown.find('## Redirects')]
+
+    # how do i make it a list, so that it's simple to process?
+    url_table_list = url_table.split('\n')
+
+    return(url_table_list)
+
+# how do i find the topic number for this base url and selector?
+def get_topic_number( base_url, selector, url_dictionary ):
+    return url_dictionary[selector + "/" + base_url]
+
+# where does the base url and selector come from?
+def build_url_dictionary( discourse_index_topic_number ):
+
+    # how do i pull the url table from the discourse index topic, so i can make a dictionary?
+    url_table = pull_discourse_url_table( discourse_index_topic_number )
+    
+    # where am i going to keep the url dictionary?
+    url_dictionary = {}
+    
+    # how do i just get the lines with actual URLs in them?
+    for i in url_table:
+        if "https" in i:
+            # how do i make a handy dictionary out of all this info?
+            topic_number = i.split('|')[1].split('/')[5].split("#")[0]
+            if int(topic_number) == discourse_index_topic_number:
+                continue
+            url = "/" + i.split('|')[2].split('/',2)[2]
+            url_dictionary[url] = topic_number
+    return( url_dictionary )
+
 ## how do i build a switcher?
 ## how do i manage targets?
 ## how do i publish older versions?
@@ -114,16 +186,42 @@ def add_block( rad_block ):
 ## how do i help the editor spot the differences?
 
 # how do i test these routines?
-if unit_test == True:
+if test == True:
+    url_dictionary = build_url_dictionary( 25 )
+    selector = "/snap/3.0/ui"
+    base_url = "about-maas"
+    topic_number = get_topic_number( base_url, selector, url_dictionary )
+    print( topic_number )
+    sys.exit(0)
     text_block = ""
-    print("passed selector string: ", selector_string)
-    print("selectors list:", selectors)
-    buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some text\nHere is some more text\nend-rad\nsome more stuff\n"
-    rad_block = extract_rad_block( buffer )
-    print(rad_block)
-    if selector_in( rad_block, selectors):
-        text_block += add_block( rad_block )
-    else:
-        print("this rad block matches no selector")
-    print("included text block")
-    print(text_block)
+    buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some /snap.2.9/ui text\nHere is some more /snap/2.9/ui text\nend-rad\nsome more stuff, with a link to /t/about-maas/nnnn.\nbegin-rad /snap/3.0/ui,/snap/2.9/ui\nThis is snap/3.0/ui and snap/2.9/ui stuff\nend-rad\n"
+    textglob = process_lines( buffer )
+    print("textglob is:")
+    print(textglob)
+
+# how do i process a block that's in?
+def add_block( rad_block ):
+    str1 = StringIO( rad_block )
+    throwaway = str1.readline()
+    block = ""
+    while True:
+        line = str1.readline()
+        if line == "":
+            return block
+        block += line
+
+# how do i extract a rad block?
+def extract_rad_block( buffer ):
+    str1 = StringIO( buffer )
+    block = ""
+    while True:
+        line = str1.readline()
+        if line_is_rad(line):
+            block += line
+            line = str1.readline()
+            while not line_is_rad_end(line):
+                block += line
+                line = str1.readline()
+            return block
+
+
