@@ -3,9 +3,11 @@
 
 """
 1. This program processes lines in a RAD 2.0 encoded file.  Non-rad-encoded blocks of text are passed on to the output.  RAD-encoded blocks of text that match the selectors specified on the command line are passed to the output, without the RAD encoding markup.  RAD-encoded blocks of text that do not match the selectors specified on the command line are not passed to the output.  Links in the text without topic numbers are replaced with the correct topic number for the current RAD selector being processed.
+
+2. This program accepts multiple selectors, versions, and base_urls in its options.  It will then manage the targets so that all of these RAD versions are created and published to the correct topics in one continuous run of the program. **NOTE** In order to pull this off, the files must be named like this: base-url.md.  For example, if you input the -b option at "about-maas," there must be a master file in the current directory entitled, exactly, "about-maas.md" or the program won't attempt to process that base_url.
 """
 
-import getopt, errno, sys, collections
+import getopt, errno, sys, collections, json
 from io import StringIO
 import maas_discourse
 
@@ -50,34 +52,9 @@ def main():
     # what does a mux link look like?
     mux_link_template = "/t/base_url/nnnn"
 
-    # where does my rad-encoded text from from?
-    rad_encoded_text = sys.stdin.read()
-
-    # how do i run as many base_urls as have been entered at the command line?
-    for base_url in base_urls:
-
-        # how do i run as many selectors as have been entered at the command line?
-        for selector in selectors:
-        
-            # how do i convert a rad-markup document to discourse markup (for a specific RAD topic)?
-            discourse_markup = rad_2_discourse_markup( rad_encoded_text, selector )
+    # how do i manage targets, based on incoming options?
+    manage_targets( selectors, versions, base_urls )
     
-            ## how do i build a switcher?
-            # what is a switcher?
-            switcher_template = "menu"  # add'l choices will be defined when UI team vsns drop
-
-            if switcher_template == "menu":
-
-                # how do i build a menu switcher?
-                switcher = build_rad_menu( selector, base_url, versions )
-                
-            # how do i add the switcher to the discourse_markup?
-            discourse_markup = switcher + "\n" + discourse_markup
-
-            # how do i output the finished rad document to the user?
-            sys.stdout.write(discourse_markup)
-        
-
 # how do i build a rad menu?
 def build_rad_menu( selector, base_url, versions):
 
@@ -133,10 +110,7 @@ def build_rad_menu( selector, base_url, versions):
         menu_string += menu_line + "\n"
 
     return( menu_string )
-
-                
         
-    
 # how DO i pull the url table from the discourse index topic, so i can make a dictionary?
 def pull_discourse_url_table( disc_idx_topic_no ):
     
@@ -199,10 +173,10 @@ def line_is_rad_end( line ):
     
 # how do i find a specified selector in a rad block?
 def selector_in(line, selector):
-    for i in selector:
-        if i in line:
-            return True
-    return False
+    if selector in line:
+        return True
+    else:
+        return False
 
 # how is the selector specified?
 def usage():
@@ -281,9 +255,60 @@ def get_topic_number( base_url, selector, url_dictionary ):
 
 
 
-## how do i manage targets?
+# how do i manage targets?
+def manage_targets( selectors, versions, base_urls ):
+
+    # how do i run as many base_urls as have been entered at the command line?
+    for base_url in base_urls:
+
+        # where do i get the input text?
+        filename = "./" + base_url + ".md"
+
+        # how do i open the input file?
+        f = open( filename, "r" )
+
+        # how do i read in all the contents of this file?
+        rad_encoded_text = f.read()
+
+        # how do i close this file to reset it?
+        f.close()
+
+        # how do i run as many selectors as have been entered at the command line?
+        for selector in selectors:
+        
+            # how do i convert a rad-markup document to discourse markup (for a specific RAD topic)?
+            discourse_markup = rad_2_discourse_markup( rad_encoded_text, selector )
+    
+            ## how do i build a switcher?
+            # what is a switcher?
+            switcher_template = "menu"  # add'l choices will be defined when UI team vsns drop
+
+            if switcher_template == "menu":
+
+                # how do i build a menu switcher?
+                switcher = build_rad_menu( selector, base_url, versions )
+                
+            # how do i add the switcher to the discourse_markup?
+            discourse_markup = switcher + "\n" + discourse_markup
+
+            ## how do i output the finished rad document to the user?
+            # how do i find the correct discourse topic number for this combination?
+            destination_topic = url_dictionary[selector + "/" + base_url]
+
+            ## how do i publish current versions?
+            # how do i get the API credentials, so i can pull the index topic?
+            err, credentials = maas_discourse.md_get_credentials("/etc/rad/dc.yaml")
+
+            # how do i pull the destination_topic?
+            err, topic_json = maas_discourse.md_api_get_topic( destination_topic, credentials )
+
+            # how do i get the main post number, so i can push to it?
+            err, post_number = maas_discourse.md_get_post_number( topic_json )
+
+            # how do i push the updated content?
+            err, post_json = maas_discourse.md_api_put_post( post_number, discourse_markup, credentials ) 
+
 ## how do i publish older versions?
-## how do i publish current versions?
 ## how do i publish to html?
 ## how do i publish to other formats?
 ## how do i find changes?
