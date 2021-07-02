@@ -5,26 +5,23 @@
 1. This program processes lines in a RAD 2.0 encoded file.  Non-rad-encoded blocks of text are passed on to the output.  RAD-encoded blocks of text that match the selectors specified on the command line are passed to the output, without the RAD encoding markup.  RAD-encoded blocks of text that do not match the selectors specified on the command line are not passed to the output.  Links in the text without topic numbers are replaced with the correct topic number for the current RAD selector being processed.
 """
 
-import getopt, errno, sys
+import getopt, errno, sys, collections
 from io import StringIO
 import maas_discourse
 
 # do i want to run test code?
 test = True
 
-# how do i tie all this together with sequential logic?
+# what is a RAD 2.0 selector?
+selector_start = "rad-begin" # /snap/3.0/ui, etc....
+selector_end   = "rad-end"   # with no RAD URLs on the line
+
+# how do i convert a document to RAD and manage it's publication?
 def main():
 
-    # where do i cross-reference topic numbers with RAD selectors and base_urls?
-    url_dictionary = build_url_dictionary( 25 )
-
-    # what is a RAD 2.0 selector?
-    selector_start = "begin-rad" # /snap/3.0/ui, etc....
-    selector_end   = "end-rad"   # with no RAD URLs on the line
-
-    # how do i get the selectors from the command line?
+    # how do i get the selectors, maas versions, and base_urls from the command line?
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:")
+        opts, args = getopt.getopt(sys.argv[1:], "s:v:b:")
     except getopt.GetoptError as err:
         print(err)
         sys.exit(errno.EINVAL)
@@ -34,28 +31,112 @@ def main():
         usage()
         sys.exit(errno.EINVAL)
 
-    # how do i pull out the selector set of options?
+    # how do i pull out the version and selector options?
     selector_string = ""
+    version_string = ""
     for o, a in opts:
         if o == "-s":
             selector_string = a
+        elif o == "-v":
+            version_string = a
+        elif o == "-b":
+            base_url_string = a
         else:
             assert False
     selectors = selector_string.split(",")
+    versions = version_string.split(",")
+    base_urls = base_url_string.split(",")
 
     # what does a mux link look like?
     mux_link_template = "/t/base_url/nnnn"
 
-    # how do i test these routines?
-    if test == True:
-        text_block = ""
-        buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some /snap.2.9/ui text\nHere is some more /snap/2.9/ui text\nend-rad\nsome more stuff, with a link to /t/about-maas/nnnn.\nbegin-rad /snap/3.0/ui,/snap/2.9/ui\nThis is snap/3.0/ui and snap/2.9/ui stuff\nend-rad\n"
-        textglob = process_lines( buffer, "/snap/2.9/ui" )
-        print("textglob is:")
-        print(textglob)
+    # where does my rad-encoded text from from?
+    rad_encoded_text = sys.stdin.read()
 
+    # how do i run as many base_urls as have been entered at the command line?
+    for base_url in base_urls:
+
+        # how do i run as many selectors as have been entered at the command line?
+        for selector in selectors:
+        
+            # how do i convert a rad-markup document to discourse markup (for a specific RAD topic)?
+            discourse_markup = rad_2_discourse_markup( rad_encoded_text, selector )
     
+            ## how do i build a switcher?
+            # what is a switcher?
+            switcher_template = "menu"  # add'l choices will be defined when UI team vsns drop
 
+            if switcher_template == "menu":
+
+                # how do i build a menu switcher?
+                switcher = build_rad_menu( selector, base_url, versions )
+                
+            # how do i add the switcher to the discourse_markup?
+            discourse_markup = switcher + "\n" + discourse_markup
+
+            # how do i output the finished rad document to the user?
+            sys.stdout.write(discourse_markup)
+        
+
+# how do i build a rad menu?
+def build_rad_menu( selector, base_url, versions):
+
+    # how do i get all the topics that match this base_url?
+    short_dictionary = dict(filter(lambda item: base_url in item[0], url_dictionary.items()))
+
+    # how do i sort these topics by base_url, so we have consisent menus?
+    ordered_short_dictionary = collections.OrderedDict(sorted(short_dictionary.items()))
+
+    ### how do i build up a menu string from the info available to me?
+    ## how do i build up a menu header from info that i have?
+    # what does the menu header look like?
+    menu_header_template = "|| vsn | vsn | vsn... |\n|----:|:----:|:----:|....|\n"
+
+    # how do i start the menu string?
+    menu_string = "||"
+    menu_line_2 = "|-----:|"
+    
+    # where do i get the version information?
+    for i in versions:
+        menu_string += str(i) + "|"
+        menu_line_2 += ":-----:|"
+    menu_string = menu_string + "\n" + menu_line_2 + "\n"
+
+    ## how do i build up the individual menu lines?
+    # how do i compute the packaging information?
+    packaging_methods = []
+    for key in ordered_short_dictionary:
+        packaging_methods.append(key.split("/")[1])
+    packaging_methods = list(dict.fromkeys(packaging_methods))
+
+    # how do i compute the interface information?
+    interfaces = []
+    for key in ordered_short_dictionary:
+        interfaces.append(key.split("/")[3])
+    interfaces = list(dict.fromkeys(interfaces))
+
+        # how do i loop through the menu items and put them in place?
+    for packaging_method in packaging_methods:
+        menu_line = "|" + packaging_method.upper() + "|"
+        for version in versions:
+            flag = False;
+            for interface in interfaces:
+                keyval = "/"+packaging_method+"/"+version+"/"+interface+"/"+base_url
+                topic_number = ordered_short_dictionary[keyval]
+                if flag == False:
+                    menu_line += "[" + interface.upper() + "]"
+                    flag = True
+                else:
+                    menu_line += " ~ [" + interface.upper() + "]"
+                menu_line += "(/t/" + base_url + "/" + str(topic_number) + ")"
+            menu_line += "|"
+        menu_string += menu_line + "\n"
+
+    return( menu_string )
+
+                
+        
+    
 # how DO i pull the url table from the discourse index topic, so i can make a dictionary?
 def pull_discourse_url_table( disc_idx_topic_no ):
     
@@ -128,7 +209,7 @@ def usage():
     print("make_rad -s selector,selector,selector,...")
     
 # how do i process lines?
-def process_lines( buffer, selector ):
+def rad_2_discourse_markup( buffer, selector ):
     textglob = ""
     str1 = StringIO( buffer )
     while True:
@@ -199,7 +280,7 @@ def get_topic_number( base_url, selector, url_dictionary ):
     return url_dictionary[selector + "/" + base_url]
 
 
-## how do i build a switcher?
+
 ## how do i manage targets?
 ## how do i publish older versions?
 ## how do i publish current versions?
@@ -235,6 +316,8 @@ def extract_rad_block( buffer ):
                 line = str1.readline()
             return block
 
+# where do i cross-reference topic numbers with RAD selectors and base_urls?
+url_dictionary = build_url_dictionary( 25 )
 
 if __name__ == '__main__':
     main()
