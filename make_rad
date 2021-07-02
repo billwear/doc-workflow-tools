@@ -1,20 +1,106 @@
 #!/usr/bin/python3
+# what do i need this program to do?
+
+"""
+1. This program processes lines in a RAD 2.0 encoded file.  Non-rad-encoded blocks of text are passed on to the output.  RAD-encoded blocks of text that match the selectors specified on the command line are passed to the output, without the RAD encoding markup.  RAD-encoded blocks of text that do not match the selectors specified on the command line are not passed to the output.  Links in the text without topic numbers are replaced with the correct topic number for the current RAD selector being processed.
+"""
 
 import getopt, errno, sys
 from io import StringIO
 import maas_discourse
 
+# do i want to run test code?
 test = True
 
-# what do i need this program to do?
-"""
-1. This program processes lines in a RAD 2.0 encoded file.  Non-rad-encoded blocks of text are passed on to the output.  RAD-encoded blocks of text that match the selectors specified on the command line are passed to the output, without the RAD encoding markup.  RAD-encoded blocks of text that do not match the selectors specified on the command line are not passed to the output.
-"""
+# how do i tie all this together with sequential logic?
+def main():
 
-# how do i process RAD 2.0 selectors?
-# what is a RAD 2.0 selector?
-selector_start = "begin-rad" # /snap/3.0/ui, etc....
-selector_end   = "end-rad"   # with no RAD URLs on the line
+    # where do i cross-reference topic numbers with RAD selectors and base_urls?
+    url_dictionary = build_url_dictionary( 25 )
+
+    # what is a RAD 2.0 selector?
+    selector_start = "begin-rad" # /snap/3.0/ui, etc....
+    selector_end   = "end-rad"   # with no RAD URLs on the line
+
+    # how do i get the selectors from the command line?
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "s:")
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(errno.EINVAL)
+
+    # how do i know if they didn't type enough options?
+    if len(sys.argv) < 2:
+        usage()
+        sys.exit(errno.EINVAL)
+
+    # how do i pull out the selector set of options?
+    selector_string = ""
+    for o, a in opts:
+        if o == "-s":
+            selector_string = a
+        else:
+            assert False
+    selectors = selector_string.split(",")
+
+    # what does a mux link look like?
+    mux_link_template = "/t/base_url/nnnn"
+
+    # how do i test these routines?
+    if test == True:
+        text_block = ""
+        buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some /snap.2.9/ui text\nHere is some more /snap/2.9/ui text\nend-rad\nsome more stuff, with a link to /t/about-maas/nnnn.\nbegin-rad /snap/3.0/ui,/snap/2.9/ui\nThis is snap/3.0/ui and snap/2.9/ui stuff\nend-rad\n"
+        textglob = process_lines( buffer, "/snap/2.9/ui" )
+        print("textglob is:")
+        print(textglob)
+
+    
+
+# how DO i pull the url table from the discourse index topic, so i can make a dictionary?
+def pull_discourse_url_table( disc_idx_topic_no ):
+    
+    # how do i get the API credentials, so i can pull the index topic?
+    error, credentials = maas_discourse.md_get_credentials("/etc/rad/dc.yaml")
+
+    # how do i pull the disc_idx_topic_no?
+    error, index_topic_json = maas_discourse.md_api_get_topic( disc_idx_topic_no, credentials )
+
+    # how do i get the main post number, so i can pull it?
+    error, post_number = maas_discourse.md_get_post_number( index_topic_json )
+
+    # how do i pull the main post, so i can pull the URL table out of its markdown?
+    error, post_json = maas_discourse.md_api_get_post( post_number, credentials )
+
+    # how do I get just the markdown, so i can pull the URL table out of it?
+    error, post_markdown = maas_discourse.md_get_markdown_content( post_json )
+
+    # how do i pull the URL table out by itself, so i can return it?
+    url_table = post_markdown[post_markdown.find('## URLs'):post_markdown.find('## Redirects')]
+
+    # how do i make it a list, so that it's simple to process?
+    url_table_list = url_table.split('\n')
+
+    return(url_table_list)
+
+# where does the base url and selector come from?
+def build_url_dictionary( disc_idx_topic_no ):
+
+    # how do i pull the url table from the discourse index topic, so i can make a dictionary?
+    url_table = pull_discourse_url_table( disc_idx_topic_no )
+    
+    # where am i going to keep the url dictionary?
+    url_dictionary = {}
+    
+    # how do i just get the lines with actual URLs in them?
+    for i in url_table:
+        if "https" in i:
+            # how do i make a handy dictionary out of all this info?
+            topic_number = i.split('|')[1].split('/')[5].split("#")[0]
+            if int(topic_number) == disc_idx_topic_no:
+                continue
+            url = "/" + i.split('|')[2].split('/',2)[2]
+            url_dictionary[url] = topic_number
+    return( url_dictionary )
 
 # how do i recognize a selector?
 def line_is_rad( line ):
@@ -41,27 +127,6 @@ def selector_in(line, selector):
 def usage():
     print("make_rad -s selector,selector,selector,...")
     
-# how do i get the selectors from the command line?
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "s:")
-except getopt.GetoptError as err:
-    print(err)
-    sys.exit(errno.EINVAL)
-
-# how do i know if they didn't type enough options?
-if len(sys.argv) < 2:
-    usage()
-    sys.exit(errno.EINVAL)
-
-# how do i pull out the selector set of options?
-selector_string = ""
-for o, a in opts:
-    if o == "-s":
-        selector_string = a
-    else:
-        assert False
-selectors = selector_string.split(",")
-
 # how do i process lines?
 def process_lines( buffer, selector ):
     textglob = ""
@@ -109,10 +174,6 @@ def line_has_rad_mux_link( line ):
     else:
         return False
 
-## how do i mux a link?
-# what does a mux link look like?
-mux_link_template = "/t/base_url/nnnn"
-
 # how do i fix a mux link?
 def fix_mux_links( line, selector ):
     # how do i separate multiple mux links in the same line?
@@ -123,56 +184,20 @@ def fix_mux_links( line, selector ):
             # how do i get the base url out of the mux link?
             base_url = i.split("/")[1]
             # how do i find the topic number for this base url and selector?
-            
+            topic_number = get_topic_number( base_url, selector, url_dictionary )
+            ## how do i replace the topic number for the nnnn?
+            # how do i build up a unique string to match for replacement?
+            replacement_regex = "/t/" + base_url + "/nnnn"
+            replacement_link = "/t/" + base_url + "/" + str(topic_number)
+            # how do i replace the old link with the new one?
+            line = line.replace(replacement_regex, replacement_link)
 
-# how DO i pull the url table from the discourse index topic, so i can make a dictionary?
-def pull_discourse_url_table( discourse_index_topic_number ):
-    # how do i get the API credentials, so i can pull the index topic?
-    error, credentials = maas_discourse.md_get_credentials("/etc/rad/dc.yaml")
-
-    # how do i pull the discourse_index_topic_number?
-    error, index_topic_json = maas_discourse.md_api_get_topic( discourse_index_topic_number, credentials )
-
-    # how do i get the main post number, so i can pull it?
-    error, post_number = maas_discourse.md_get_post_number( index_topic_json )
-
-    # how do i pull the main post, so i can pull the URL table out of its markdown?
-    error, post_json = maas_discourse.md_api_get_post( post_number, credentials )
-
-    # how do I get just the markdown, so i can pull the URL table out of it?
-    error, post_markdown = maas_discourse.md_get_markdown_content( post_json )
-
-    # how do i pull the URL table out by itself, so i can return it?
-    url_table = post_markdown[post_markdown.find('## URLs'):post_markdown.find('## Redirects')]
-
-    # how do i make it a list, so that it's simple to process?
-    url_table_list = url_table.split('\n')
-
-    return(url_table_list)
+    return(line)
 
 # how do i find the topic number for this base url and selector?
 def get_topic_number( base_url, selector, url_dictionary ):
     return url_dictionary[selector + "/" + base_url]
 
-# where does the base url and selector come from?
-def build_url_dictionary( discourse_index_topic_number ):
-
-    # how do i pull the url table from the discourse index topic, so i can make a dictionary?
-    url_table = pull_discourse_url_table( discourse_index_topic_number )
-    
-    # where am i going to keep the url dictionary?
-    url_dictionary = {}
-    
-    # how do i just get the lines with actual URLs in them?
-    for i in url_table:
-        if "https" in i:
-            # how do i make a handy dictionary out of all this info?
-            topic_number = i.split('|')[1].split('/')[5].split("#")[0]
-            if int(topic_number) == discourse_index_topic_number:
-                continue
-            url = "/" + i.split('|')[2].split('/',2)[2]
-            url_dictionary[url] = topic_number
-    return( url_dictionary )
 
 ## how do i build a switcher?
 ## how do i manage targets?
@@ -184,20 +209,6 @@ def build_url_dictionary( discourse_index_topic_number ):
 ## how do notify the editor of the changes?
 ## how do i retrieve the changes for the editor?
 ## how do i help the editor spot the differences?
-
-# how do i test these routines?
-if test == True:
-    url_dictionary = build_url_dictionary( 25 )
-    selector = "/snap/3.0/ui"
-    base_url = "about-maas"
-    topic_number = get_topic_number( base_url, selector, url_dictionary )
-    print( topic_number )
-    sys.exit(0)
-    text_block = ""
-    buffer = "some stuff\nbegin-rad /snap/2.9/ui\nHere is some /snap.2.9/ui text\nHere is some more /snap/2.9/ui text\nend-rad\nsome more stuff, with a link to /t/about-maas/nnnn.\nbegin-rad /snap/3.0/ui,/snap/2.9/ui\nThis is snap/3.0/ui and snap/2.9/ui stuff\nend-rad\n"
-    textglob = process_lines( buffer )
-    print("textglob is:")
-    print(textglob)
 
 # how do i process a block that's in?
 def add_block( rad_block ):
@@ -225,3 +236,5 @@ def extract_rad_block( buffer ):
             return block
 
 
+if __name__ == '__main__':
+    main()
