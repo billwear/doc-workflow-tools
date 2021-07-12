@@ -180,7 +180,7 @@ def selector_in(line, selector):
 
 # how is the selector specified?
 def usage():
-    print("make_rad -s selector,selector,selector,...")
+    print("make_rad -s selector,... -b base_url,... -v version,...")
     
 # how do i process lines?
 def rad_2_discourse_markup( buffer, selector ):
