@@ -235,7 +235,7 @@ def line_has_rad_mux_link( line ):
 # how do i fix a mux link?
 def fix_mux_links( line, selector ):
     # how do i separate multiple mux links in the same line?
-    mux_links = line.split("/t")
+    mux_links = line.split("(/t")
     for i in mux_links:
         # how do i tell a mux link from just plan text?
         if "/nnnn" in i:
