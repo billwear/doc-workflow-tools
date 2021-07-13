@@ -58,8 +58,9 @@ def main():
 # how do i build a rad menu?
 def build_rad_menu( selector, base_url, versions):
 
+    search_url = "/" + base_url + "/"
     # how do i get all the topics that match this base_url?
-    short_dictionary = dict(filter(lambda item: base_url in item[0], url_dictionary.items()))
+    short_dictionary = dict(filter(lambda item: search_url in item[0], url_dictionary.items()))
 
     # how do i sort these topics by base_url, so we have consisent menus?
     ordered_short_dictionary = collections.OrderedDict(sorted(short_dictionary.items()))
@@ -98,7 +99,7 @@ def build_rad_menu( selector, base_url, versions):
         for version in versions:
             flag = False;
             for interface in interfaces:
-                keyval = "/"+packaging_method+"/"+version+"/"+interface+"/"+base_url
+                keyval = "/"+packaging_method+"/"+version+"/"+interface+"/"+base_url+"/"
                 topic_number = ordered_short_dictionary[keyval]
                 if flag == False:
                     menu_line += "[" + interface.upper() + "]"
@@ -153,7 +154,9 @@ def build_url_dictionary( disc_idx_topic_no ):
             topic_number = i.split('|')[1].split('/')[5].split("#")[0]
             if int(topic_number) == disc_idx_topic_no:
                 continue
-            url = "/" + i.split('|')[2].split('/',2)[2]
+            # how do i handle urls with partial matches?
+            ## can i mark urls with an extra "/" at the end?
+            url = "/" + i.split('|')[2].split('/',2)[2] +"/"
             url_dictionary[url] = topic_number
     return( url_dictionary )
 
@@ -251,8 +254,8 @@ def fix_mux_links( line, selector ):
 
 # how do i find the topic number for this base url and selector?
 def get_topic_number( base_url, selector, url_dictionary ):
-    return url_dictionary[selector + "/" + base_url]
-
+    # how do i make the base_url match without partials?
+    return url_dictionary[selector + "/" + base_url + "/"]
 
 
 # how do i manage targets?
@@ -293,7 +296,7 @@ def manage_targets( selectors, versions, base_urls ):
 
             ## how do i output the finished rad document to the user?
             # how do i find the correct discourse topic number for this combination?
-            destination_topic = url_dictionary[selector + "/" + base_url]
+            destination_topic = url_dictionary[selector + "/" + base_url + "/"]
 
             ## how do i publish current versions?
             # how do i get the API credentials, so i can pull the index topic?
