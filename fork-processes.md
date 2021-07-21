@@ -1,5 +1,7 @@
 MAAS is a powerful open-source tool that lets you create a data centre from bare-metal servers. You can discover, commission, deploy, and dynamically reconfigure a large network of individual units.  MAAS converts your hardware investment into a cohesive, flexible, distributed data centre, with a minimum of time and effort.
 
+This is a second copy of this file to test diffing, etc.
+
 #### Four questions you might have:
 
 1. [What is MAAS?](#heading--what-is-maas)
@@ -31,9 +33,9 @@ rad-end /snap/3.0/ui
 
 rad-begin /deb/3.0/ui /deb/3.0/cli /snap/3.0/ui /snap/3.0/cli
 MAAS also discovers all USB and PCI devices attached to your physical or virtual machines, and allows you to delete them from the machine's visible configuration, prior to deployment, if you so desire.
-rad-end /deb/3.0/ui /deb/3.0/cli /snap/3.0/ui /snap/3.0/cli 
+rad-end /deb/3.0/ui /deb/3.0/cli /snap/3.0/ui /snap/3.0/cli
 
-rad-begin /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /deb/3.0/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /snap/3.0/ui 
+rad-begin /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /deb/3.0/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /snap/3.0/ui
 MAAS integrates all the tools you need into a smooth system-management experience. It includes the following thirteen features:
 
 1. web UI (optimised for mobile devices)
@@ -52,9 +54,9 @@ MAAS integrates all the tools you need into a smooth system-management experienc
 
 These tools can be controlled from a responsive web UI.  You can easily (re)configure and scale your data centre with MAAS.
 
-<a href="https://discourse.maas.io/uploads/default/original/1X/00968a71b82ce01c45ae3b345ed6b1270d0927bf.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/00968a71b82ce01c45ae3b345ed6b1270d0927bf.jpeg"></a> 
+<a href="https://discourse.maas.io/uploads/default/original/1X/00968a71b82ce01c45ae3b345ed6b1270d0927bf.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/00968a71b82ce01c45ae3b345ed6b1270d0927bf.jpeg"></a>
 
-rad-end /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /deb/3.0/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /snap/3.0/ui 
+rad-end /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /deb/3.0/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /snap/3.0/ui
 
 rad-begin /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /deb/3.0/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /snap/3.0/cli
 MAAS integrates all the tools you need into a smooth system-management experience. It includes the following eleven features:
@@ -72,9 +74,9 @@ MAAS integrates all the tools you need into a smooth system-management experienc
 11. composable hardware support
 
 
-<a href="https://discourse.maas.io/uploads/default/original/1X/40fdae53957095e5a830458dc5c7a62ea5d78c10.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/40fdae53957095e5a830458dc5c7a62ea5d78c10.jpeg"></a> 
+<a href="https://discourse.maas.io/uploads/default/original/1X/40fdae53957095e5a830458dc5c7a62ea5d78c10.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/40fdae53957095e5a830458dc5c7a62ea5d78c10.jpeg"></a>
 
-rad-end /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /deb/3.0/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /snap/3.0/cli 
+rad-end /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /deb/3.0/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /snap/3.0/cli
 
 MAAS works with any system configuration tools. Both the [Chef](https://www.chef.io/chef) and [Juju](https://jaas.ai/) teams recommend MAAS as a physical provisioning system.
 
@@ -84,7 +86,7 @@ Please note that Windows and RHEL images require [Ubuntu Advantage](https://www.
 
 <a href="#heading--colocation-of-key-components"><h3 id="heading--colocation-of-key-components">Colocation of key components</h3></a>
 
-MAAS relies on two key components: the *region controller* and the *rack controller*. The region controller handles operator requests; the rack controller provides high-bandwidth services to multiple racks. In essence, rack controllers manage racks, while the region controller manages the data centre. We generally recommended installing both controllers on the same system.  The default MAAS install delivers this co-located configuration automatically. This all-in-one solution also provides DHCP. 
+MAAS relies on two key components: the *region controller* and the *rack controller*. The region controller handles operator requests; the rack controller provides high-bandwidth services to multiple racks. In essence, rack controllers manage racks, while the region controller manages the data centre. We generally recommended installing both controllers on the same system.  The default MAAS install delivers this co-located configuration automatically. This all-in-one solution also provides DHCP.
 
 See [Concepts and terms](/t/concepts-and-terms/785#heading--controllers) for a deeper understanding of these components. Note that in special cases, such as [high availability or load balancing](/t/high-availability/nnnn), you will want to install multiple region and rack controllers.  You should also review your existing network design to determine whether [MAAS-managed DHCP](/t/managing-dhcp/nnnn) will cause problems.
 
@@ -106,7 +108,7 @@ Commissioning means that MAAS has successfully booted the machine, scanned and r
 
 rad-begin /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /deb/3.0/ui /snap/3.0/ui
 <a href="https://discourse.maas.io/uploads/default/original/1X/605019de31078dd70df72ff199d812de13a30d00.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/605019de31078dd70df72ff199d812de13a30d00.jpeg"></a>
-rad-end /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /deb/3.0/ui /snap/3.0/ui 
+rad-end /deb/2.7/ui /deb/2.8/ui /deb/2.9/ui /snap/2.7/ui /snap/2.8/ui /snap/2.9/ui /deb/3.0/ui /snap/3.0/ui
 
 rad-begin /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /deb/3.0/cli /snap/3.0/cli
 <a href="https://discourse.maas.io/uploads/default/original/1X/6aec9b567022216d80596411e689a14e1f594674.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/6aec9b567022216d80596411e689a14e1f594674.jpeg"></a>
@@ -128,7 +130,7 @@ rad-begin /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /snap/2.7/cli /snap/2.8/cli /sn
 <a href="https://discourse.maas.io/uploads/default/original/1X/ac3b251a916bb18a7e7e463d7fa3c57ef32628da.jpeg" target = "_blank"><img src="https://discourse.maas.io/uploads/default/original/1X/ac3b251a916bb18a7e7e463d7fa3c57ef32628da.jpeg"></a>
 
 When acquiring machines from the API/CLI, you can specify requirements ("constraints"). Common constraints are memory, CPU cores, connected networks, and assigned physical zone.
-rad-end /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /deb/3.0/cli /snap/3.0/cli 
+rad-end /deb/2.7/cli /deb/2.8/cli /deb/2.9/cli /snap/2.7/cli /snap/2.8/cli /snap/2.9/cli /deb/3.0/cli /snap/3.0/cli
 
 An acquired MAAS machine is more flexible than a virtual instance in a cloud. You have complete control, including hardware drivers and root access. If you want to upgrade the BIOS, for example, you can allocate a machine to yourself and complete the upgrade.  Once you have completed the upgrade, you can send the machine back to the pool.
 
