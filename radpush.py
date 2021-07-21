@@ -32,14 +32,18 @@
 #
 #
 
+# what libraries does this program need?
 import getopt, sys, errno
 
+# how do we print the usage instructions (and exit) ?
 def usage():
     print('usage: radpush [-pl] {[-f FILENAME] -t TOPIC_NUMBER} | -F ENCODED_FILENAME | {-c -T "title string"}')
+    sys.exit(errno.EINVAL)
 
-# step one: process options
+# what is the main execution flow?
 def main():
 
+    # can we successfully get valid program options?
     try:
         opts, args = getopt.getopt(sys.argv[1:], "plf:t:F:cT:")
     except getopt.GetoptError as err:
@@ -49,7 +53,6 @@ def main():
     # how do i know if they didn't type enough options?
     if len(sys.argv) < 2:
         usage()
-        sys.exit(errno.EINVAL)
 
     # where do i store the option values?
     printout = False
@@ -79,52 +82,68 @@ def main():
         else:
             assert False
 
-    # check for conflicting/complementary options
+    # how do i make sure the options don't conflict with each other?
     # `radpush [-pl] {[-f FILENAME] -t TOPIC_NUMBER} | -F ENCODED_FILENAME | {-c -T "title string"}`
     if filename != "" and topic == 0:
         print("radpush: missing topic for filename", filename)
         usage()
-        sys.exit(errno.EINVAL)
+
     if filename != "" and encfile != "":
         print("radpush: contradictory options: -f and -F")
         usage()
-        sys.exit(errno.EINVAL)
+
     if filename != "" and create == True:
         print("radpush: contradictory options: -f and -c")
         usage()
-        sys.exit(errno.EINVAL)
+
     if filename != "" and title != "":
         print("radpush: contradictory options: -f and -T")
         usage()
-        sys.exit(errno.EINVAL)
+
     if topic != 0 and encfile != "":
         print("radpush: contradictory options: -t and -F")
         usage()
-        sys.exit(errno.EINVAL)
+
     if topic != 0 and create == True:
         print("radpush: contradictory options: -t and -c")
         usage()
-        sys.exit(errno.EINVAL)
+
     if topic != 0 and title != "":
         print("radpush: contradictory options: -t and -T")
         usage()
-        sys.exit(errno.EINVAL)
+
     if encfile != "" and create == True:
         print("radpush: contradictory options: -F and -c")
         usage()
-        sys.exit(errno.EINVAL)
+
     if encfile != "" and title != "":
         print("radpush: contradictory options: -F and -T")
         usage()
-        sys.exit(errno.EINVAL)
+
     if create == True and title == "":
         print("radpush: create option set, but no document title given")
         usage()
-        sys.exit(errno.EINVAL)
+
     if create == False and title != "":
         print("radpush: document title given, but create option not set")
         usage()
-        sys.exit(errno.EINVAL)
+
+    # since there are no contraditions, what does the user want to do?
+    ## does the user want to just send stdin to a discourse topic?
+    if topic != 0 and filename =="":
+        print("send a topic from stdin to discourse")
+
+    ## does the user want to send a specific file to a discourse topic?
+    elif topic != 0 and filename != "":
+        print("send a topic from a file to discourse")
+
+    ## does the user want to use encoded filename(s) to send markdown?
+    elif encfile != "":
+        print("use encoded filename(s) to send markdown to discourse")
+
+    ## does the user want to create a new topic?
+    elif create == True:
+        print("create a new topic")
 
 if __name__ == '__main__':
     main()
