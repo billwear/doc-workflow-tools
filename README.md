@@ -6,7 +6,11 @@ CLI tools to help with a remote doc publishing workflow
 
 All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'apt list rad*' doesn't produce any package names.
 
-## `radpush {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md`
+## radpush
+
+```
+radpush {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md`
+```
 
 `radpush` takes its input from `stdin` by default, but it will take its input from a file instead, if either the `-f` or `-F` options are specified.  `radpush` requires a topic number in one of the two forms listed above:
 
@@ -17,6 +21,7 @@ All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'ap
 In the case of `-F` wildcards may be used, since `radpush` can pick up the topic numbers from the individual filenames.
 
 `radpush` outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.  The `-p` option will cause `radpush` to output the JSON for each topic pushed to stdout, as the push is completed.  The `-l` option causes `radpush` to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
+
 ``` nohighlight
 #####################################################################################
 ### radtools: what CLI tools can I create to help with my discourse doc workflow? ###
