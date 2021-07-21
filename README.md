@@ -1,14 +1,11 @@
-***`#####################################################################################`***
-***`### radtools: what CLI tools can I create to help with my discourse doc workflow? ###`***
-***`#####################################################################################`***
+``` nohighlight
+#####################################################################################
+### radtools: what CLI tools can I create to help with my discourse doc workflow? ###
+#####################################################################################
 
-*`# what is the naming convention for these tools?`*
+# what is the naming convention for these tools?
 
-All of these tools begin with `rad`, e.g.:
-
-``` bash
-radpush
-```
+All of these tools begin with 'rad', e.g. 'radpush'.
 
 There do not seem to be any widely-known command line utilities beginning with "rad".  In fact,  
 ## what ops in my doc workflow need automating?
@@ -32,3 +29,5 @@ There do not seem to be any widely-known command line utilities beginning with "
 #### how do i get the timestamp when a discourse/API topic was last edited?
 
 #### how do i get the username of the person last editing a discourse/API topic?
+
+```
