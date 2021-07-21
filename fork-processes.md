@@ -1,6 +1,6 @@
 MAAS is a powerful open-source tool that lets you create a data centre from bare-metal servers. You can discover, commission, deploy, and dynamically reconfigure a large network of individual units.  MAAS converts your hardware investment into a cohesive, flexible, distributed data centre, with a minimum of time and effort.
 
-This is a second copy of this file to test diffing, etc.
+This is a new line for diff purposes.
 
 #### Four questions you might have:
 
