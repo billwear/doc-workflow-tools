@@ -8,7 +8,7 @@ All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'ap
 
 ## radpush(7)
 
-NAME
+### NAME
     radpush - push markdown text to discourse
 
 SYNOPSIS
