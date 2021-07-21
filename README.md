@@ -9,9 +9,9 @@ All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'ap
 ## radpush(7)
 
 ### NAME
-    radpush - push markdown text to discourse
+   radpush - push markdown text to discourse
 
-SYNOPSIS
+### SYNOPSIS
     radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md` 
 
 
