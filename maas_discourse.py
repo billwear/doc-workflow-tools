@@ -7,61 +7,61 @@ containing "_api_" in their name access the API, those without work on passed da
  - md_get_last_edit_timestamp(revision_json):
    -- accepts: latest revision JSON for first post of a given topic
       (note that in the MAAS doc world, the first post is the actual documentation)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the discourse timestamp of the last edit, as a string (in Zulu time)
  - md_get_last_editor_username(revision_json):
    -- accepts: latest revision JSON for first post of a given topic
       (note that in the MAAS doc world, the first post is the actual documentation)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the username of the user who last edited the first post, as a string
  - md_api_get_topic(topic_id, credentials):
    -- accepts: a discourse topic ID (integer), and a set of API credentials (dictionary)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the full JSON representation of the topic
  - md_api_get_latest_revision(topic_id, credentials):
    -- accepts: a discourse topic ID (integer), and a set of API credentials (dictionary)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the latest revision JSON for the first post of the given topic
  - md_api_get_post(post_id, credentials):
    -- accepts: a discourse post ID (integer), and a set of API credentials (dictionary)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the full JSON representation of the post
  - md_api_put_post(post_id, markdown, credentials):
    -- accepts: a discourse post ID (integer), a buffer containing the markdown to push,
       and a set of API credentials (dictionary)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and the JSON that was actually written to post post_id
  - md_api_has_been_updated(topic_id, interval, credentials):
-   -- accepts: a discourse topic ID (integer), an interval in hours (integer), 
+   -- accepts: a discourse topic ID (integer), an interval in hours (integer),
       and a set of API credentials (dictionary)
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and a boolean indicating whether topic_id has been updated in the last
-      interval hours 
+      interval hours
  - md_get_credentials(credential_file_path):
-   -- accepts: a file path to a valid MAAS docs API credential set, which includes 
+   -- accepts: a file path to a valid MAAS docs API credential set, which includes
       a username, an API key, and a valid MAAS docs API URL
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and a dictionary containing the API credentials
  - md_get_post_number(topic_json):
    -- accepts: the full JSON representation of a topic
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and an integer corresponding to the post number
  - md_get_markdown_content(post_json):
    -- accepts: the full JSON representation of a post
-   -- returns: a tuple containing an error code (drawn from the errno library), 
-      and a string containing the markdown content of the post (essentially, the 
+   -- returns: a tuple containing an error code (drawn from the errno library),
+      and a string containing the markdown content of the post (essentially, the
       markdown corresponding to the discourse doc page content
  - md_is_later_than(timestamp_1, timestamp_2):
    -- accepts: two timestamps, as discourse timestamp strings
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and a boolean indicating whether timestamp1 is later than timestamp2
  - md_is_earlier_than(timestamp_1, timestamp_2):
    -- accepts: two timestamps, as discourse timestamp strings
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and a boolean indicating whether timestamp1 is earlier than timestamp2
  - md_is_identical_to(timestamp_1, timestamp_2):
    -- accepts: two timestamps, as discourse timestamp strings
-   -- returns: a tuple containing an error code (drawn from the errno library), 
+   -- returns: a tuple containing an error code (drawn from the errno library),
       and a boolean indicating whether timestamp1 is identical to timestamp2
 """
 
@@ -75,31 +75,31 @@ except ImportError:
 
 def md_get_last_edit_timestamp(revision_json):
     '''
-    pulls the last edited timestamp from the passed JSON dictionary containing 
+    pulls the last edited timestamp from the passed JSON dictionary containing
     information about the latest revision of a topic.
     '''
 
     # copy last_edit_timestamp to local variable
     created_at = revision_json["created_at"]
-    
+
     # return error code, last_edit_timestamp to caller
     return(0, created_at)
-    
+
 def md_get_last_editor_username(revision_json):
     '''
-    pulls the username of the user who last edited a topic from the passed JSON 
+    pulls the username of the user who last edited a topic from the passed JSON
     dictionary containing information about the latest revision of a topic.
     '''
     # copy last_editor_username to local variable
     username = revision_json["username"]
-    
+
     # return error code, last_editor_username to caller
     return(0, username)
-        
+
 def md_api_get_topic(topic_id, credentials):
     '''
-    gets topic_id from the Discourse server indicated in the credentials; 
-    handles Discourse API wait requests and other transient errors, 
+    gets topic_id from the Discourse server indicated in the credentials;
+    handles Discourse API wait requests and other transient errors,
     in case a large number of calls are made in a short time period
     '''
 
@@ -146,12 +146,12 @@ def md_api_get_topic(topic_id, credentials):
                 continue;
         except:
             return(0, topic_json)
-    
-    
+
+
 def md_api_get_latest_revision(topic_id, credentials):
     '''
-    gets latest revision for topic_id from the Discourse server indicated in 
-    the credentials; handles Discourse API wait requests and other transient 
+    gets latest revision for topic_id from the Discourse server indicated in
+    the credentials; handles Discourse API wait requests and other transient
     errors, in case a large number of calls are made in a short time period.
     '''
 
@@ -166,7 +166,7 @@ def md_api_get_latest_revision(topic_id, credentials):
        error, post_id = md_get_post_number(topic_json)
     except:
         return(errno.ENODATA, "couldn't get post number")
-    
+
     # set rate limit error flag to True
     rate_limit_error = True
 
@@ -190,8 +190,8 @@ def md_api_get_latest_revision(topic_id, credentials):
             ],
             stdout=subprocess.PIPE,
         )
-        
-    
+
+
         ## read the curl result into a usable buffer
         output = proc.stdout.read()
 
@@ -216,8 +216,8 @@ def md_api_get_latest_revision(topic_id, credentials):
 
 def md_api_get_post(post_id, credentials):
     '''
-    gets post_id from the Discourse server indicated in the credentials; 
-    handles Discourse API wait requests and other transient errors, in case a 
+    gets post_id from the Discourse server indicated in the credentials;
+    handles Discourse API wait requests and other transient errors, in case a
     large number of calls are made in a short time period.
     '''
     # set rate limit error flag to True
@@ -225,7 +225,7 @@ def md_api_get_post(post_id, credentials):
 
     # while rate limit error is True
     while rate_limit_error == True:
-    
+
         ## do the curl call
         proc = subprocess.Popen(
             [
@@ -243,7 +243,7 @@ def md_api_get_post(post_id, credentials):
             ],
             stdout=subprocess.PIPE,
         )
-        
+
 
         ## read the curl result into a usable buffer
         output = proc.stdout.read()
@@ -269,8 +269,8 @@ def md_api_get_post(post_id, credentials):
 
 def md_api_change_title(post_id, put_buffer, new_title, credentials):
     '''
-    change the title of topic_id on the Discourse server indicated in the credentials; 
-    handles Discourse API wait requests and other transient errors, in case a large 
+    change the title of topic_id on the Discourse server indicated in the credentials;
+    handles Discourse API wait requests and other transient errors, in case a large
     number of calls are made in a short time period.
     '''
     # pad the markdown to 9000 characters to avoid a discourse bug
@@ -302,10 +302,10 @@ def md_api_change_title(post_id, put_buffer, new_title, credentials):
 
     # set rate_limit_error flag
     rate_limit_error = True
-    
+
     # while rate limit error is True
     while rate_limit_error == True:
-    
+
         ## use the curl command to post the new_title to the post on discourse,
         ## and read the result into a usable return buffer
         proc= subprocess.Popen(
@@ -353,13 +353,13 @@ def md_api_change_title(post_id, put_buffer, new_title, credentials):
 
 def md_api_put_post(post_id, markdown, credentials):
     '''
-    puts a new version of topic_id the Discourse server indicated in the credentials; 
-    handles Discourse API wait requests and other transient errors, in case a large 
+    puts a new version of topic_id the Discourse server indicated in the credentials;
+    handles Discourse API wait requests and other transient errors, in case a large
     number of calls are made in a short time period.
     '''
 
     # pad the markdown to 9000 characters to avoid a discourse bug
-    put_buffer = put_buffer.ljust(9000)
+    put_buffer = markdown.ljust(9000)
 
     # create a dictionary buffer for the put_buffer
     data = {}
@@ -386,10 +386,10 @@ def md_api_put_post(post_id, markdown, credentials):
 
     # set rate_limit_error flag
     rate_limit_error = True
-    
+
     # while rate limit error is True
     while rate_limit_error == True:
-    
+
         ## use the curl command to post put_buffer to the post on discourse,
         ## and read the result into a usable return buffer
         proc= subprocess.Popen(
@@ -449,7 +449,7 @@ def md_api_has_been_updated(topic_id, interval, credentials):
     # fix the timestamp so it can be compared with current system time
     last_rev_timestamp = last_rev_timestamp.replace("T"," ")
     last_rev_timestamp = last_rev_timestamp.replace("Z"," ")
-    
+
     # get the current timestamp, consistent with the Discourse server
     ts = datetime.datetime.utcnow()
 
@@ -461,7 +461,7 @@ def md_api_has_been_updated(topic_id, interval, credentials):
         return True
     else:
         return False
-    
+
 def md_get_credentials(credential_file_path):
     '''
     reads API URL and credentials from a specified file into a list for use with
@@ -486,8 +486,8 @@ def md_get_credentials(credential_file_path):
 
 def md_get_post_number(topic_json):
     '''
-    pulls the post number for the first post in a topic (needed for most topic 
-    modifications) from the passed JSON dictionary containing information about 
+    pulls the post number for the first post in a topic (needed for most topic
+    modifications) from the passed JSON dictionary containing information about
     a topic.
     '''
 
@@ -503,7 +503,7 @@ def md_get_post_number(topic_json):
 
 def md_get_markdown_content(post_json):
     '''
-    pulls the actual topic markdown content from the passed JSON dictionary 
+    pulls the actual topic markdown content from the passed JSON dictionary
     containing information about a post.
     '''
     # copy raw component to local variable
@@ -518,9 +518,9 @@ def md_get_markdown_content(post_json):
 
 def md_is_later_than(timestamp_1, timestamp_2):
     '''
-    compares two Discourse timestamps as strings and returns True if the first 
-    passed timestamp is later than the second.  Discourse timestamps in JSON payloads 
-    are formatted as strings in a way that does not require converting them to 
+    compares two Discourse timestamps as strings and returns True if the first
+    passed timestamp is later than the second.  Discourse timestamps in JSON payloads
+    are formatted as strings in a way that does not require converting them to
     datetime types to compare them.
     '''
 
@@ -529,7 +529,7 @@ def md_is_later_than(timestamp_1, timestamp_2):
 
 def md_is_earlier_than(timestamp_1, timestamp_2):
     '''
-    compares two Discourse timestamps as strings and returns True if the first 
+    compares two Discourse timestamps as strings and returns True if the first
     passed timestamp is earlier than the second.
     '''
 
@@ -538,10 +538,9 @@ def md_is_earlier_than(timestamp_1, timestamp_2):
 
 def md_is_identical_to(timestamp_1, timestamp_2):
     '''
-    compares to Discourse timestamps as strings and returns True if they 
+    compares to Discourse timestamps as strings and returns True if they
     are identical.
     '''
 
     # return_value = ts1 ==n ts2
     return(0, timestamp_1 == timestamp_2)
-

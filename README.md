@@ -25,6 +25,8 @@ Mandatory arguments to long options are mandatory for short options too.
 
 * **-c, --create** - create the topic if it doesn't exist; must be accompanied by a -T option to set the topic title.
 
+* **-C, --credentials** - path to file where API credentials are found; if this option is not given, **radpush** will attempt to pull the needed credentials from `/etc/rad/dc.yaml`.
+
 * **-f, --file=<u>FILENAME</u>** - specify a filename containing the markdown to push; if neither **-f** nor **-F** are used, **radpush** takes its markdown from **stdin**; must be accompanied by a -t option to set the topic number.
 
 * **-F, --efile=<u>ENCODED_FILENAME</u>** - specify a specially-encoded filename, consisting of "anytitle-topicno.md" (e.g., my-updates-3947, where 3947 is the topic number that will be updated); wildcards may be used with this option.
@@ -36,6 +38,10 @@ Mandatory arguments to long options are mandatory for short options too.
 * **-t, --topic=TOPIC_NUMBER** - discourse topic number to which the markdown should be pushed
 
 * **-T, --title="title string"** - user-viewable title of the new topic, only used with -c option.
+
+## FILES
+
+**radtools** looks in `/etc/rad/dc.yaml` for API credentials if no **-C** option is given.
 
 -----
 

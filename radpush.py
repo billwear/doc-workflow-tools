@@ -33,7 +33,8 @@
 #
 
 # what libraries does this program need?
-import getopt, sys, errno
+import getopt, sys, errno, maas_discourse, json
+ENOERR = 0
 
 # how do we print the usage instructions (and exit) ?
 def usage():
@@ -45,7 +46,7 @@ def main():
 
     # can we successfully get valid program options?
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "plf:t:F:cT:")
+        opts, args = getopt.getopt(sys.argv[1:], "plf:t:F:cT:C:")
     except getopt.GetoptError as err:
         print(err)
         sys.exit(errno.EINVAL)
@@ -62,6 +63,7 @@ def main():
     topic    = 0
     encfile  = ""
     title    = ""
+    credfile = "/etc/rad/dc.yaml"
 
     # how do i pull out the options?
     for o, a in opts:
@@ -74,11 +76,13 @@ def main():
         elif o == "-f":
             filename = a
         elif o == "-t":
-            topic = o
+            topic = a
         elif o == "-F":
             encfile = a
         elif o == "-T":
             title = a
+        elif o == "-C":
+            credfile = a
         else:
             assert False
 
@@ -128,22 +132,57 @@ def main():
         print("radpush: document title given, but create option not set")
         usage()
 
+    # make sure we can get the credentials; if not, error output
+
     # since there are no contraditions, what does the user want to do?
     ## does the user want to just send stdin to a discourse topic?
     if topic != 0 and filename =="":
-        print("send a topic from stdin to discourse")
+        error, credentials = maas_discourse.md_get_credentials(credfile)
+        if error != ENOERR:
+            print("radpush: error", error, "trying to retrieve API credentials")
+            sys.exit(errno.EINVAL)
+
+        # how do i load the markdown to post?
+        markdown = sys.stdin.read()
+
+        # how do i get the topic_json?
+        error, topic_json = maas_discourse.md_api_get_topic( topic, credentials)
+        if error != ENOERR:
+            print("error number", error," trying to retrieve topic", topic, "from discourse")
+            sys.exit(errno.EINVAL)
+
+        # how do i get the post_id?
+        error, post_number = maas_discourse.md_get_post_number(topic_json)
+        if error != ENOERR:
+            print("error number", error," trying to retrieve post_id from ", topic, "JSON")
+            sys.exit(errno.EINVAL)
+
+        # how do i write the markdown file to discoure?
+        error, new_json = maas_discourse.md_api_put_post( post_number, markdown, credentials )
+        if error != ENOERR:
+            print("error number", error," trying to write new markdown to", topic, "in discourse")
+            sys.exit(errno.EINVAL)
+
+        if log == True:
+            outfile = "stdin-"+topic+".json"
+            f = open(outfile, "w+")
+            f.write(json.dumps(new_json))
+            f.close
+
+        if printout == True:
+            sys.stdout.write(json.dumps(new_json))
 
     ## does the user want to send a specific file to a discourse topic?
     elif topic != 0 and filename != "":
-        print("send a topic from a file to discourse")
+        print("send markdown from", filename, "to discourse topic", topic)
 
     ## does the user want to use encoded filename(s) to send markdown?
     elif encfile != "":
-        print("use encoded filename(s) to send markdown to discourse")
+        print("use", encfile, "to send markdown to discourse")
 
     ## does the user want to create a new topic?
     elif create == True:
-        print("create a new topic")
+        print("create a new topic entitled", title)
 
 if __name__ == '__main__':
     main()
