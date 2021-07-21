@@ -1,42 +1,62 @@
 # radtools
 
-CLI tools to help with a remote doc publishing workflow
 
+-----
 ## Naming Convention
 
 All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'apt list rad*' doesn't produce any package names.
 
+-----
+
 ## radpush(7)
 
 ### NAME
-radpush - push markdown text to discourse
+**radpush** - push markdown text to discourse
 
 ### SYNOPSIS
-`radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md` 
+
+### DESCRIPTION
+**radpush** converts markdown text from FILENAME to discourse JSON and pushes it to a discourse TOPIC_NUMBER. Requires a topic number. Gets markdown from **stdin** in the absence of [-fF].
+
+Mandatory arguments to long options are mandatory for short options too.
+
+* -f, --file=FILENAME :: specify a filename containing the markdown to push; if neither -f nor -F are used, **radpush** takes its markdown from **stdin**
+
+* -F, --efile=ENCODED_FILENAME :: specify a specially-encoded filename, consisting of  
+
+* -l, --log :: copy pushed discourse JSON to one JSON file per topic pushed, with filename "base-filename-topicno.json"
+
+* -t, --topic=TOPIC_NUMBER :: discourse topic number to which the markdown should be pushed
+
+* -p, --print :: copy pushed discourse JSON to **stdout**; does not separate JSON from multiple files, if wildcards are used with -F
 
 
-`radpush` takes its input from `stdin` by default, but it will take its input from a file instead, if either the `-f` or `-F` options are specified.  `radpush` requires a topic number in one of the two forms listed above:
+**radpush** requires a topic number in one of two forms:
 
-* if the base markdown filename terminates with a "-#", where "#" is the topic number, using the `-F` option will indicate to `radpush` that it must pick up the topic number from that filename.  If no topic number can be deduced from the `-F filename`, the program prints an error and exits.
+* if the base markdown filename terminates with a "-#", where "#" is the topic number, using the `-F` option will indicate to **radpush** that it must pick up the topic number from that filename.  If no topic number can be deduced from the `-F filename`, the program prints an error and exits.
 
 * if the markdown comes in via `stdin` or a `-f filename` option, the topic number must be supplied by the `-t` option, regardless of whether a topic number is embedded in the filename.
 
-With the `-F` option, wildcards may be used, since `radpush` can pick up the topic numbers from the individual filenames.
+With the `-F` option, wildcards may be used, since **radpush** can pick up the topic numbers from the individual filenames.
 
-`radpush` outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.
+**radpush** outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.
 
-* The `-p` option will cause `radpush` to output the JSON for each topic pushed to stdout, as the push is completed.  Note that `radpush` does not separate JSON output from multiple files, for example, if `-F` is used with a wildcard.
 
-* The `-l` option causes `radpush` to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
+* The `-l` option causes **radpush** to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
 
 Both options may be used, if desired.
-
 -----
 
-## radpull
+## radpull(7)
 
-```
+### NAME
+**radpull** - pull markdown text from discourse
+
+### SYNOPSIS
 radpull {-t <topic number> [-f <output filename]} | -T <topic range>
+
+### DESCRIPTION
+**radpull** pulls markdown text from one or more discourse topics and print it to `stdout` or to a specified filename(s).
 
 `radpull` accepts the following options:
 
