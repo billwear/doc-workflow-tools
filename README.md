@@ -1,6 +1,6 @@
-# radtools: UNIX CLI tools to automate discourse doc work?
+# radtools: UNIX CLI tools to automate discourse doc work
 
-## what is the naming convention for these tools?
+*`# what is the naming convention for these tools?`*
 
 All of these tools begin with `rad`, e.g.:
 
