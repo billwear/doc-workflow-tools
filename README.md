@@ -1,17 +1,32 @@
-# radtools: what new UNIX CLI tools will automate discourse doc work?
+# radtools: UNIX CLI tools to automate discourse doc work?
 
-## what are the operations in my doc workflow that need automating?
+## what is the naming convention for these tools?
 
-### what are the basic discourse operations
+All of these tools begin with `rad`, e.g.:
 
-#### editing a doc in emacs
+``` bash
+radpush
+```
 
-#### pushing a valid discourse markdown file to a discourse topic number
+There do not seem to be any widely-known command line utilities beginning with "rad".  In fact,  
+## what ops in my doc workflow need automating?
 
-#### validating a discourse markdown file
+### what are the basic discourse operations?
 
-#### changing the title (not title slug) of a discourse topic number
+#### what emacs editing macros could be helpful?
 
-#### checking see whether a discourse topic has been externally edited
+#### how do i push markdown to the primary post of a discourse API/topic?
 
-####
+#### how do i pull markdown from the primary post of a discourse API/topic?
+
+#### how do i validate a discourse markdown file?
+
+##### how do i confirm that the markdown is correct and well-formed?
+
+##### how do i spell-check the markdown before sending it?
+
+#### how do i change the title (not title slug) of a discourse API/topic?
+
+#### how do i get the timestamp when a discourse/API topic was last edited?
+
+#### how do i get the username of the person last editing a discourse/API topic?
