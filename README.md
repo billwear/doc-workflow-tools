@@ -14,37 +14,29 @@ All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'ap
 **radpush** - push markdown text to discourse
 
 ### SYNOPSIS
+`radpush [-pl] {[-f FILENAME] -t TOPIC_NUMBER} | -F ENCODED_FILENAME | {-c -T "title string"}`
 
 ### DESCRIPTION
-**radpush** converts markdown text from FILENAME to discourse JSON and pushes it to a discourse TOPIC_NUMBER. Requires a topic number. Gets markdown from **stdin** in the absence of [-fF].
+**radpush** converts markdown text from FILENAME to discourse JSON and pushes it to a discourse TOPIC_NUMBER. Requires a topic number. Gets markdown from **stdin** in the absence of **[-fF]**.
+
+**radpush** outputs nothing unless the **-p** ("print") or **-l** ("log") options are selected.
 
 Mandatory arguments to long options are mandatory for short options too.
 
-* -f, --file=FILENAME :: specify a filename containing the markdown to push; if neither -f nor -F are used, **radpush** takes its markdown from **stdin**
+* **-c, --create** - create the topic if it doesn't exist; must be accompanied by a -T option to set the topic title.
 
-* -F, --efile=ENCODED_FILENAME :: specify a specially-encoded filename, consisting of  
+* **-f, --file=<u>FILENAME</u>** - specify a filename containing the markdown to push; if neither **-f** nor **-F** are used, **radpush** takes its markdown from **stdin**; must be accompanied by a -t option to set the topic number.
 
-* -l, --log :: copy pushed discourse JSON to one JSON file per topic pushed, with filename "base-filename-topicno.json"
+* **-F, --efile=<u>ENCODED_FILENAME</u>** - specify a specially-encoded filename, consisting of "anytitle-topicno.md" (e.g., my-updates-3947, where 3947 is the topic number that will be updated); wildcards may be used with this option.
 
-* -t, --topic=TOPIC_NUMBER :: discourse topic number to which the markdown should be pushed
+* **-l, --log** - copy pushed discourse JSON to one JSON file per topic pushed, with filename "base-filename-topicno.json"
 
-* -p, --print :: copy pushed discourse JSON to **stdout**; does not separate JSON from multiple files, if wildcards are used with -F
+* **-p, --print** - copy pushed discourse JSON to **stdout**; does not separate JSON from multiple files, if wildcards are used with -F
 
+* **-t, --topic=TOPIC_NUMBER** - discourse topic number to which the markdown should be pushed
 
-**radpush** requires a topic number in one of two forms:
+* **-T, --title="title string"** - user-viewable title of the new topic, only used with -c option.
 
-* if the base markdown filename terminates with a "-#", where "#" is the topic number, using the `-F` option will indicate to **radpush** that it must pick up the topic number from that filename.  If no topic number can be deduced from the `-F filename`, the program prints an error and exits.
-
-* if the markdown comes in via `stdin` or a `-f filename` option, the topic number must be supplied by the `-t` option, regardless of whether a topic number is embedded in the filename.
-
-With the `-F` option, wildcards may be used, since **radpush** can pick up the topic numbers from the individual filenames.
-
-**radpush** outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.
-
-
-* The `-l` option causes **radpush** to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
-
-Both options may be used, if desired.
 -----
 
 ## radpull(7)
