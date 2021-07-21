@@ -18,7 +18,7 @@ radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.m
 
 * if the markdown comes in via `stdin` or a `-f filename` option, the topic number must be supplied by the `-t` option, regardless of whether a topic number is embedded in the filename.
 
-In the case of `-F` wildcards may be used, since `radpush` can pick up the topic numbers from the individual filenames.
+With the `-F` option, wildcards may be used, since `radpush` can pick up the topic numbers from the individual filenames.
 
 `radpush` outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.  The `-p` option will cause `radpush` to output the JSON for each topic pushed to stdout, as the push is completed.  The `-l` option causes `radpush` to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
 
