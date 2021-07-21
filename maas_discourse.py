@@ -26,8 +26,8 @@ containing "_api_" in their name access the API, those without work on passed da
    -- accepts: a discourse post ID (integer), and a set of API credentials (dictionary)
    -- returns: a tuple containing an error code (drawn from the errno library), 
       and the full JSON representation of the post
- - md_api_put_post(post_id, put_buffer, credentials):
-   -- accepts: a discourse post ID (integer), a buffer containing properly formatted JSON,
+ - md_api_put_post(post_id, markdown, credentials):
+   -- accepts: a discourse post ID (integer), a buffer containing the markdown to push,
       and a set of API credentials (dictionary)
    -- returns: a tuple containing an error code (drawn from the errno library), 
       and the JSON that was actually written to post post_id
@@ -267,7 +267,91 @@ def md_api_get_post(post_id, credentials):
             ### return a "no-error" code and the revision json
             return(0, post_json)
 
-def md_api_put_post(post_id, put_buffer, credentials):
+def md_api_change_title(post_id, put_buffer, new_title, credentials):
+    '''
+    change the title of topic_id on the Discourse server indicated in the credentials; 
+    handles Discourse API wait requests and other transient errors, in case a large 
+    number of calls are made in a short time period.
+    '''
+    # pad the markdown to 9000 characters to avoid a discourse bug
+    put_buffer = put_buffer.ljust(9000)
+
+    # create a dictionary buffer for the new title
+    data = {}
+
+    # load the new_title in the appropriate json key
+    data["title"] = new_title
+    data["raw"] = put_buffer
+
+    # open a temp file to store the markdown ad json
+    # (the put works better if it draws from a file)
+    f = open("foo.json", "w")
+
+    # convert the data dictionary to json and store it in the temp file
+    f.write(json.dumps(data))
+
+    # close the temp file
+    f.close()
+
+    # copy the auth data into individual parameters
+    apikey = "Api-Key: " + credentials["api_key"]
+    apiusername = "Api-Username: " + credentials["api_username"]
+
+    # build the appropriate URL based on the calling sequence
+    url = credentials["base_url"] + "/posts/{" + str(post_id) + "}.json"
+
+    # set rate_limit_error flag
+    rate_limit_error = True
+    
+    # while rate limit error is True
+    while rate_limit_error == True:
+    
+        ## use the curl command to post the new_title to the post on discourse,
+        ## and read the result into a usable return buffer
+        proc= subprocess.Popen(
+            [
+                "curl",
+                "-s",
+                "-X",
+                "PUT",
+                url,
+                "-H",
+                apikey,
+                "-H",
+                apiusername,
+                "-H",
+                "Content-Type: application/json",
+                "-d",
+                "@foo.json",
+            ],
+            stdout=subprocess.PIPE,
+        )
+
+        ## read the curl result into a usable buffer
+        output = proc.stdout.read()
+
+        ## try to convert the result to json
+        try:
+            post_json = json.loads(output)
+        ### handle "topic doesn't exist" error
+        except:
+            return(errno.ENODATA,"blank")
+
+        ## try to see if there's a rate_limit error
+        try:
+            ### if so, sleep for 20s and continue the loop
+            if post_json["error_type"] == "rate_limit":
+                rate_limit_error = True
+                time.sleep(20)
+                continue;
+        ## if no rate error
+        except:
+            ### remove the temporary json file
+            os.remove("foo.json")
+            ### return a clear error and the post_json
+            return(0, post_json)
+
+def md_api_put_post(post_id, markdown, credentials):
     '''
     puts a new version of topic_id the Discourse server indicated in the credentials; 
     handles Discourse API wait requests and other transient errors, in case a large 
