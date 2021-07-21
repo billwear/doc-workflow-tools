@@ -2,8 +2,9 @@
 #####################################################################################
 ### radtools: what CLI tools can I create to help with my discourse doc workflow? ###
 #####################################################################################
+```
 
-# what is the naming convention for these tools?
+**`# what is the naming convention for these tools?`**
 
 All of these tools begin with 'rad', e.g. 'radpush'.
 
