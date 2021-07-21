@@ -1,4 +1,4 @@
-# radtools: how can i make a set of UNIX CLI tools to automate my discourse doc workflow?
+# radtools: what new UNIX CLI tools will automate discourse doc work?
 
 ## what are the operations in my doc workflow that need automating?
 
