@@ -1,4 +1,6 @@
-***`# radtools: what CLI tools can I create to help with my discourse doc workflow?`***
+***`#####################################################################################`***
+***`### radtools: what CLI tools can I create to help with my discourse doc workflow? ###`***
+***`#####################################################################################`***
 
 *`# what is the naming convention for these tools?`*
 
