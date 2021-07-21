@@ -6,11 +6,14 @@ CLI tools to help with a remote doc publishing workflow
 
 All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'apt list rad*' doesn't produce any package names.
 
-## radpush
+## radpush(7)
 
-```
-radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md` 
-```
+NAME
+    radpush - push markdown text to discourse
+
+SYNOPSIS
+    radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md` 
+
 
 `radpush` takes its input from `stdin` by default, but it will take its input from a file instead, if either the `-f` or `-F` options are specified.  `radpush` requires a topic number in one of the two forms listed above:
 
@@ -20,7 +23,46 @@ radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.m
 
 With the `-F` option, wildcards may be used, since `radpush` can pick up the topic numbers from the individual filenames.
 
-`radpush` outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.  The `-p` option will cause `radpush` to output the JSON for each topic pushed to stdout, as the push is completed.  The `-l` option causes `radpush` to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
+`radpush` outputs nothing unless the `-p` ("print") or `-l` ("log") options are selected.
+
+* The `-p` option will cause `radpush` to output the JSON for each topic pushed to stdout, as the push is completed.  Note that `radpush` does not separate JSON output from multiple files, for example, if `-F` is used with a wildcard.
+
+* The `-l` option causes `radpush` to create one JSON file for each topic pushed, labeled with `<base-filename-topicno>.json`.
+
+Both options may be used, if desired.
+
+-----
+
+## radpull
+
+```
+radpull {-t <topic number> [-f <output filename]} | -T <topic range>
+
+`radpull` accepts the following options:
+
+###### to stdout
+
+
+###### -T <topic number list>
+
+####### outputs topics from a list of topic numbers to filenames of the form <topic-slug-topicno.md>
+####### topic numbers can be listed as ranges (e.g., 1-5), comma separated lists (3,6,98), or both
+####### (1-5, 17, 28, 240-251)
+
+##### how can this be made even more flexible, considering the inefficiency of pulling from discourse?
+
+###### -m
+
+####### used with -f or -T, sets the file's modtime to the last edit timestamp from discourse
+####### using local system timezone; used with stdout, prints the last modified timestamp, using
+####### local system timezone, immediately following the markdown output
+
+###### -M
+
+####### appends the username of the user last modifying the file to the end of the output,
+####### regardless of whether -f, -T, or stdout are used to output the file
+
+-----
 
 ``` nohighlight
 #####################################################################################
@@ -28,27 +70,8 @@ With the `-F` option, wildcards may be used, since `radpush` can pick up the top
 #####################################################################################
 
 
-# what ops in my doc workflow need automating?
-
-## what basic discourse operations need automating?
-
-
-###### comes in from stdin
-
-##### what is the topic number?
-
-###### -t <topic-number>
-
-#### what options are needed to make this tool flexible?
-
-##### markdown filename can be used: -f <filename>
-
-#### what options are needed to make this tool more flexible?
-
-##### wildcard markdown files can be specified -F <filename/wildcard>
-##### where <filename> = discourse-title-slug-#.md, where '#' is the topic number
-
 ### how do i pull markdown from the primary post of a discourse API/topic?
+
 
 ### how do i validate discourse markdown as well-formed?
 
