@@ -9,7 +9,7 @@ All of these tools begin with 'rad', e.g. 'radpush'.  This seems safe, since 'ap
 ## radpush
 
 ```
-radpush {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md`
+radpush [-pl] {[-f <markdown filename>] -t topic_number} | -F filename-topicno.md` 
 ```
 
 `radpush` takes its input from `stdin` by default, but it will take its input from a file instead, if either the `-f` or `-F` options are specified.  `radpush` requires a topic number in one of the two forms listed above:
