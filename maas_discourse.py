@@ -135,7 +135,8 @@ def md_api_get_topic(topic_id, credentials):
             topic_json = json.loads(output)
         except:
             ### handle "topic doesn't exist" error
-            return(errno.ENODATA, "Topic doesn't exist")
+            print("error ", errno.ENODATA, ": Topic doesn't exist")
+            sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
         try:
@@ -145,7 +146,7 @@ def md_api_get_topic(topic_id, credentials):
                 time.sleep(20)
                 continue;
         except:
-            return(0, topic_json)
+            return(topic_json)
 
 
 def md_api_get_latest_revision(topic_id, credentials):
@@ -159,13 +160,14 @@ def md_api_get_latest_revision(topic_id, credentials):
     try:
         error, topic_json = md_api_get_topic(topic_id, credentials)
     except error != 0:
-        return(errno.ENODATA, "couldn't pull topic JSON")
+        print("error", errno.ENODATA, ": couldn't pull topic JSON for latest revision")
+        sys.exit(errno.ENODATA)
 
     # get the post_id from the passed topic_id
     try:
        error, post_id = md_get_post_number(topic_json)
     except:
-        return(errno.ENODATA, "couldn't get post number")
+        print("error", errno.ENODATA, ": couldn't get post number for latest revision")
 
     # set rate limit error flag to True
     rate_limit_error = True
@@ -200,7 +202,7 @@ def md_api_get_latest_revision(topic_id, credentials):
             latest_revision_json = json.loads(output)
         ### handle "topic doesn't exist" error
         except:
-            return("errno.ENOEXIST", "couldn't pull latest revision")
+            print("error", errno.ENOEXIST, ": couldn't pull latest revision")
 
         ## try to see if there's a rate_limit error
         try:
@@ -212,7 +214,7 @@ def md_api_get_latest_revision(topic_id, credentials):
         ## if no rate error
         except:
             ### return a "no-error" code and the revision json
-            return(0, latest_revision_json)
+            return(latest_revision_json)
 
 def md_api_get_post(post_id, credentials):
     '''
@@ -253,7 +255,8 @@ def md_api_get_post(post_id, credentials):
             post_json = json.loads(output)
         ### handle "topic doesn't exist" error
         except:
-            return(errno.ENODATA,"blank")
+            print("error", errno.ENODATA, ": couldn't get post JSON for post ID", post_id)
+            sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
         try:
@@ -265,7 +268,7 @@ def md_api_get_post(post_id, credentials):
         ## if no rate error
         except:
             ### return a "no-error" code and the revision json
-            return(0, post_json)
+            return(post_json)
 
 def md_api_change_title(post_id, put_buffer, new_title, credentials):
     '''
@@ -335,7 +338,8 @@ def md_api_change_title(post_id, put_buffer, new_title, credentials):
             post_json = json.loads(output)
         ### handle "topic doesn't exist" error
         except:
-            return(errno.ENODATA,"blank")
+            print("error", errno.ENODATA, ": post ", post_id, "doesn't exist when trying to change title")
+            sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
         try:
@@ -349,7 +353,7 @@ def md_api_change_title(post_id, put_buffer, new_title, credentials):
             ### remove the temporary json file
             os.remove("foo.json")
             ### return a clear error and the post_json
-            return(0, post_json)
+            return(post_json)
 
 def md_api_put_post(post_id, markdown, credentials):
     '''
@@ -419,7 +423,8 @@ def md_api_put_post(post_id, markdown, credentials):
             post_json = json.loads(output)
         ### handle "topic doesn't exist" error
         except:
-            return(errno.ENODATA,"blank")
+            print("error", errno.ENODATA, ": post", post_id, "doesn't exist")
+            sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
         try:
@@ -433,7 +438,7 @@ def md_api_put_post(post_id, markdown, credentials):
             ### remove the temporary json file
             os.remove("foo.json")
             ### return a clear error and the post_json
-            return(0, post_json)
+            return(post_json)
 
 def md_api_has_been_updated(topic_id, interval, credentials):
     '''
@@ -472,8 +477,8 @@ def md_get_credentials(credential_file_path):
     try:
         cfile = open(credential_file_path, "r")
     except:
-        ## if can't find credential file
-        return(errno.ENOFILE, "blank")
+        print("error", errno.ENOFILE, ": can't open credential file", credential_file_path)
+        sys.exit(errno.ENOFILE)
 
     # read credential file into a list, using the YAML parser
     credentials = load(cfile, Loader=Loader)
@@ -481,8 +486,8 @@ def md_get_credentials(credential_file_path):
     # close the credential file
     cfile.close()
 
-    # return tuple with error code, credentials
-    return(0, credentials)
+    # return credentials
+    return(credentials)
 
 def md_get_post_number(topic_json):
     '''
@@ -495,11 +500,11 @@ def md_get_post_number(topic_json):
     try:
         post_id = topic_json["post_stream"]["posts"][0]["id"]
     except:
-        ## if post_number isn't there
-        return(errno.ENODATA, 0)
+        print("error", errno.ENODATA, ": post number", post_id, "doesn't exist")
+        sys.exit(errno.ENODATA)
 
-    # return error code, post_nubmer to caller
-    return(0, post_id)
+    # return post_nubmer to caller
+    return(post_id)
 
 def md_get_markdown_content(post_json):
     '''
@@ -510,11 +515,11 @@ def md_get_markdown_content(post_json):
     try:
         markdown = post_json["raw"]
     except:
-        ## if raw content doesn't exists
-        return(errno.ENODATA, "blank")
+        print("error", errno.ENODATA, ": markdown content doesn't exist")
+        sys.exit(errno.ENODATA)
 
     # return error code, markdown_content to caller
-    return(0, markdown)
+    return(markdown)
 
 def md_is_later_than(timestamp_1, timestamp_2):
     '''
@@ -525,7 +530,7 @@ def md_is_later_than(timestamp_1, timestamp_2):
     '''
 
     # return_value = ts1 > ts2
-    return(0, timestamp_1 > timestamp_2)
+    return(timestamp_1 > timestamp_2)
 
 def md_is_earlier_than(timestamp_1, timestamp_2):
     '''
@@ -534,7 +539,7 @@ def md_is_earlier_than(timestamp_1, timestamp_2):
     '''
 
     # return_value = ts1 < ts2
-    return(0, timestamp_1 < timestamp_2)
+    return(timestamp_1 < timestamp_2)
 
 def md_is_identical_to(timestamp_1, timestamp_2):
     '''
@@ -543,4 +548,4 @@ def md_is_identical_to(timestamp_1, timestamp_2):
     '''
 
     # return_value = ts1 ==n ts2
-    return(0, timestamp_1 == timestamp_2)
+    return(timestamp_1 == timestamp_2)
