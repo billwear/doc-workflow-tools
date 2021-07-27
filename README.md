@@ -67,11 +67,11 @@ radnew creates an entirely new post, loaded with the passed markdown.  It return
 
 #### raddel
 
-raddel deletes the passed discourse topic entirely.  This makes the topic invisible to non-administrative users.  No warning given, although for most discourse systems, topics can be manually "undeleted" for an indefinite period of time.
+raddel deletes the passed discourse topic entirely.  This makes the topic invisible to non-administrative users.  No warning is given, although for most discourse systems, topics can be manually "undeleted" for an indefinite period of time.
 
 #### radlastmod
 
-radlastmod returns the last edited time and the last edited user, to STDOUT, as a comma-separated tuple.  The last edited time is in whatever timezone your chosen discourse instance is using, usually Zulu time.  Conversion and use of the output timestamp is up to the end user.  The last edited user is printed as the username of the account which performed this last edit.  Cross-referencing that username to the discourse user list is up to the end user.
+radlastmod returns the last edited time and the last editing user to STDOUT, as a comma-separated tuple.  The last edited time is in whatever timezone your chosen discourse instance is using, usually Zulu time.  Conversion and use of the output timestamp is up to the end user.  The last edited user is printed as the username of the account which performed this last edit.  Cross-referencing that username to the discourse user list is up to the end user.
 
 #### radf
 
@@ -83,6 +83,7 @@ Markers must appear on lines above and below the text being marked, with the "be
 
 For example, if you have two different versions of your product, you might have two paragraphs marked like this:
 
+```
 my-begin-marker Windows
 Here is some text relevant to your Windows product.  It can be anything you want, and it can contain any text that isn't the begin or end markers.  It can be as long or as short as you want.
 my-end-marker
@@ -95,7 +96,7 @@ Here is different text, relevant instead to your Ubuntu 20.04 version.  Likewise
 
 It can also be as long or short as you want, and contain images, links, or any other valid markdown.
 my-end-marker
-
+```
 
 When you filter the above text like this:
 
@@ -137,19 +138,21 @@ Discourse links depend on topic numbers, not recognizable titles, so if I have e
 
 Instead, I can supply a known base URL in the link, use "nnnn" for the topic number, and allow radRlink to insert the correct topic number as each RAD version is generated.  It looks like this, for example:
 
+```
 ...[High availability](/t/high-availabilty/nnnn)...
+```
 
 The radRlink tool will find these patterns, go look up the correct topic number for whatever version of the document is currently being generated (based on the selector), and replace the "nnnn" with the correct topic number.  It saves a tremendous amount of effort and more than a little disk space.
 
 #### radRmenu
 
-The calling sequence for this tools is:
+The calling sequence for this tool is:
 
 ```
 rmenu -b base_url
 ```
 
-Every RAD document needs a menu at the top, which allows users to select the version of the document they want to see. Ideally, selecting a specific RAD version of one document should automatically make all the links and navigation point to that same version, but that's still being implemented at this writing.  As a temporary accommodation, these menus go at the top of every document:
+Every RAD document needs a link menu at the top, which allows users to select the version of the document they want to see. Ideally, selecting a specific RAD version of one document should automatically make all the links and navigation point to that same version, but that's still being implemented at this writing.  As a temporary accommodation, these menus go at the top of every document:
 
 ```
 |      |    2.9   |    3.0   |
