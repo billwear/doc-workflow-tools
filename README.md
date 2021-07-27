@@ -7,13 +7,17 @@ radget -t TOPIC_NUMBER [-a AUTH_FILE] - print discourse TOPIC_NUMBER markdown to
 
 radput -t TOPIC_NUMBER [-a AUTH_FILE] - replace discourse TOPIC_NUMBER with markdown from STDIN
 
-radnew -T "TITLE STRING" [-a AUTH_FILE] - create a new discourse topic loaded with markdown from STDIN, returning the newly-assigned topic number to STDOUT
+radnew -T "TITLE STRING" [-a AUTH_FILE] - create a new discourse topic loaded with markdown from STDIN,
+returning the newly-assigned topic number to STDOUT
 
 raddel -t TOPIC_NUMBER [-a AUTH_FILE] - delete discouse topic TOPIC_NUMBER
 
-radf -b "begin marker" -e "end marker" -s "selector" - filter a markdown document, including all sections bracketed with "begin marker" and "end marker" for which "selector" is present on the "begin marker" line, and excluding all other such bracketed sections; takes input from STDIN and issues output to STDOUT
+radf -b "begin marker" -e "end marker" -s "selector" - filter a markdown document, including all sections
+bracketed with "begin marker" and "end marker" for which "selector" is present on the "begin marker" line,
+and excluding all other such bracketed sections; takes input from STDIN and issues output to STDOUT
 
-radlastmod -t TOPIC_NUMBER - retrieves the last modtime and the username of the user making that mod to STDOUT as a comma-separated tuple
+radlastmod -t TOPIC_NUMBER - retrieves the last modtime and the username of the user making that
+mod to STDOUT as a comma-separated tuple
 ```
 
 ## About radtools
