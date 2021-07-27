@@ -1,0 +1,97 @@
+#!/usr/bin/python3
+
+# what libraries does this program need?
+import sys, errno, getopt
+
+# how do we print the usage instructions (and exit)?
+def usage():
+    print('usage: radf -b "begin marker" -e "end marker" -s "selector"')
+    sys.exit(errno.EINVAL)
+
+# what is the main execution flow?
+def main():
+
+    # can we successfully get valid program options?
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "b:e:s:")
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(errno.EINVAL)
+
+    # how do i know if they didn't type enough options?
+    if len(sys.argv) < 7:
+        usage()
+
+    # where do i store the option values?
+    begin_marker = ""
+    end_marker = ""
+    selector = ""
+
+    # how do i pull out the options?
+    for o, a in opts:
+        if o == "-b":
+            begin_marker = a
+        elif o == "-e":
+            end_marker = a
+        elif o == "-s":
+            selector = a
+        else:
+            assert False
+
+    # how do i validate the options?
+    # `raddel -t TOPIC_NUMBEr [-a AUTH_FILE]`
+    if begin_marker == "":
+        print("radf: no begin marker specified")
+        usage()
+
+    if end_marker == "":
+        print("radf: no end marker specified")
+        usage()
+
+    if selector == "":
+        print("radf: no selectors specified")
+        usage()
+
+    # loop through the incoming text lines
+    for line in sys.stdin:
+
+        # if this is a RAD encoding line...
+        if begin_marker in line:
+
+            # if the passed selector is in the line...
+            if selector in line:
+
+                # pull the next line from stdin and keep it
+                line = next(sys.stdin)  #1
+
+                # while the next line isn't a "rad-end" line...
+                while end_marker not in line:
+
+                    # copy the line to stdout
+                    sys.stdout.write(line)
+
+                    # pull the next line and repeat the loop
+                    line = next(sys.stdin)  #2
+
+                # skip forward in the for loop
+                continue;
+
+            # if the passed selector is *not* in the line...
+            if selector not in line:
+
+                # loop through all the lines until you find the "rad-end"
+                while end_marker not in line:
+
+                    # remove lines not matching the selector from the output
+                    line = next(sys.stdin) #4
+
+                # advance one line and continue the for loop
+                line = next(sys.stdin) #3
+                continue;
+
+        # write the passed line to stdout
+        sys.stdout.write(line)
+
+
+if __name__ == '__main__':
+    main()
