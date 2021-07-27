@@ -51,7 +51,7 @@ There are two helper files which enable radtools: dc.yaml, and rad.db.  dc.yaml 
 
 ### About the tools
 
-The following section gives the calling sequence and operation of each tool.
+The following section gives explains the operation of each tool.
 
 #### radget
 
