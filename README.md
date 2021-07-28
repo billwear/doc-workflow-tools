@@ -1,6 +1,6 @@
 # radtools
 
-Note that this github includes manpages for all the tools.  You can install the manpages (for example, the radget manpage) like this:
+Note that this github includes manpages for all the standard tools (the special, Canonical-only RAD tools don't have manpages, just this README).  You can install the manpages (for example, the radget manpage) like this:
 
 ```
 sudo cp radget.7 /usr/local/share/man/man7
