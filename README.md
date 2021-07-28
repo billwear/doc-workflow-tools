@@ -77,6 +77,8 @@ raddel deletes the passed discourse topic entirely.  This makes the topic invisi
 
 radlastmod returns the last edited time and the last editing user to STDOUT, as a comma-separated tuple.  The last edited time is in whatever timezone your chosen discourse instance is using, usually Zulu time.  Conversion and use of the output timestamp is up to the end user.  The last edited user is printed as the username of the account which performed this last edit.  Cross-referencing that username to the discourse user list is up to the end user.
 
+radlastmod shouldn't be needed too much.  There is a [wonderful report](https://discourse.maas.io/admin/reports/post_edits) that discourse generates, which is way faster, much less stress on the system, and much easier to see what changed.  Even if you use radlastmod, cleverly in a shell script, to get the list of last mods and who modded, you'll still have to go look at the changes, which means pulling down text and then generating similar, side-by-side text for a diff, and....  Nevermind all that; just use the discourse report, it's much easier.  But the tool is here if you want to use it.
+
 #### radf
 
 radf filters markdown received via STDIN according to command-line options, and outputs the filtered markdown to STDOUT.  A simple example is the easiest illustration.
@@ -166,4 +168,32 @@ Every RAD document needs a link menu at the top, which allows users to select th
 ```
 
 If the user happens to be looking at the SNAP 2.9 UI version, but wants to see the DEB 3.0 CLI version, they can easily get there from this menu.  Again, this is just intended as a stopgap, so if this doesn't interest you or doesn't mean anything to you, no need to worry about it.
+
+NOTE that to make this work right, you need to prune all but the last two versions of MAAS from the rad.db.  Otherwise the menus will be wonky.  I probably need to fix that to be an option, as I have time.
+
+#### radRmake
+
+In this shell script, we can see the power of these tools, combined with the command line.  Here's the entire script:
+
+```
+sqlite3 /etc/rad/rad.db 'select * from links' \
+| grep $1 | grep -v "2\.7" | grep -v "2\.8" \
+| cut -f2,3 -d"|" | cut -f3- -d"/" \
+| sed -e 's/|/ /g' | sed -e 's/^/\//' | sed -e 's/i\//i /' \
+| awk '{print  "cat /home/stormrider/git/maas-offline-docs/src/" $2 ".md 
+| radf -b rad-begin -e rad-end -s " $1 " 
+| radRlink -s " $1 " 
+| radRmenu -b " $2 " 
+| radput -t " $3}' \
+> /tmp/Rmake.sh
+chmod 777 /tmp/Rmake.sh
+/tmp/Rmake.sh
+rm /tmp/Rmake.sh
+```
+
+It's pretty simple, and it takes a base URL fragment (the shell $1, in the second line) to match.  By judiciously using that grep string, you can match quite a few of the topics (for example, if you enter "machines" as a grep fragment, you'll update "Machines," "Deploy machines," "Commission machines," "Add machines," .... Note that wildcards don't work the same in this context, but because of delays that the discourse server inserts when you have more than 10-15, back-to-back requests, a massive, full-set make isn't really do-able anyway.
+
+The point is that you can use these tools, with a moderate amount of shell skill, to build whatever you need to accommodate whatever the current doc structure might be -- and that's cool, to me.
+
+
 
