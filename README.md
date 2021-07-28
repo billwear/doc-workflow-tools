@@ -10,6 +10,14 @@ sudo mandb
 
 Then you should be able to use the manual (e.g., `man radget`) in lieu of reading this long, rambling dissertation on the toolset.
 
+Also note that YMMV on where the manpages are kept.  You can find the main location by executing a command similar to this:
+
+```
+find / -name ls.1.gz -print 2>/dev/null
+```
+
+This should return some pathname, like `/usr/share/man/man1/ls.1.gz`, for example.
+
 ## radtools quick reference
 
 ```
