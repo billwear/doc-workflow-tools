@@ -129,6 +129,8 @@ def main():
     table += ") ~ [" + rad_urls[7].split("/")[3].upper() + "](/t/-/"
     table += get_topic_number(conn,makesel(rad_urls[7]),base_url) + ")|\n" 
 
+    print(table)
+    
     # output the augmented RAD document to stdout
     sys.stdout.write(table + "\n" + document_markdown)
 
