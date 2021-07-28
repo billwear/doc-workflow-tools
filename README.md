@@ -1,5 +1,15 @@
 # radtools
 
+Note that this github includes manpages for all the tools.  You can install the manpages (for example, the radget manpage) like this:
+
+```
+sudo cp radget.7 /usr/local/share/man/man7
+sudo gzip /usr/local/share/man/man7/radget.7
+sudo mandb
+```
+
+Then you should be able to use the manual (e.g., `man radget`) in lieu of reading this long, rambling dissertation on the toolset.
+
 ## radtools quick reference
 
 ```
