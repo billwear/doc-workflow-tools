@@ -47,7 +47,7 @@ def find_matching_urls(base_url, conn):
 
         # attempt to find the matching records in the RAD database
         cur = conn.cursor()
-        cur.execute("SELECT url from links where url like '%" + base_url + "%'")
+        cur.execute("SELECT url from links where url like '%/" + base_url + "'")
         matching_rows = cur.fetchall()
 
         # return the results
@@ -96,7 +96,7 @@ def main():
     
     # retrieve all db records where URL contains base_url
     matched_lines = find_matching_urls(base_url, conn)
-        
+
     # build a list of the actual URLs
     rad_urls = []
     for i in matched_lines:
@@ -129,8 +129,6 @@ def main():
     table += ") ~ [" + rad_urls[7].split("/")[3].upper() + "](/t/-/"
     table += get_topic_number(conn,makesel(rad_urls[7]),base_url) + ")|\n" 
 
-    print(table)
-    
     # output the augmented RAD document to stdout
     sys.stdout.write(table + "\n" + document_markdown)
 
