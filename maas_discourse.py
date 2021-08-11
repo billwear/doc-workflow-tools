@@ -115,7 +115,7 @@ def md_api_get_topic(topic_id, credentials):
             ],
             stdout=subprocess.PIPE,
         )
-  
+
         ## read the curl result into a usable buffer
         output = proc.stdout.read()
 

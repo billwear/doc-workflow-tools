@@ -36,7 +36,7 @@ def read_index_topic(auth_file, index_topic_number, url, topic_number):
     
     # first, let's not reinvent the wheel; 
     # let's just use dpull, which we already have
-    stream = os.popen('./radget -t ' + str(index_topic_number) + ' -a ' + auth_file)
+    stream = os.popen('radget -t ' + str(index_topic_number) + ' -a ' + auth_file)
     dictionary = stream.read()
 
     # find the URL mapping table

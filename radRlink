@@ -26,22 +26,23 @@ def find_all(a_str, sub):
 # function to find the topic number for a url/selector combo in the rad database
 def get_topic_number(conn, selector, url):
 
-        # create the matching url
-        db_url = "/docs" + selector + "/" + url
+#    print("url = ", url)
+    # create the matching url
+    db_url = "/docs" + selector + "/" + url
 
-        # attempt to find the matching record in the RAD database
-        cur = conn.cursor()
-        cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
-        topic_number = cur.fetchall()
+    # attempt to find the matching record in the RAD database
+    cur = conn.cursor()
+    cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
+    topic_number = cur.fetchall()
 
-        # clean up the topic number on the way out
-        return int(str(topic_number).split('(')[1].split(',')[0])
+    # clean up the topic number on the way out
+    return int(str(topic_number).split('(')[1].split(',')[0])
 
 # usage message
 def usage():
-        print("usage: radRlink -s selector")
-        sys.exit(errno.EINVAL)
-        
+    print("usage: radRlink -s selector")
+    sys.exit(errno.EINVAL)
+
 # rudimentary command line handling
 if len(sys.argv) != 3 or sys.argv[1] != "-s":
         usage()
@@ -84,26 +85,26 @@ for i in vlinks:
         # is the topic_part an "nnnn"?
         if topic_part == "nnnn":
 
-                # find the edges of the link
-                where = document_markdown.find("nnnn", i) + 4
-                if where == -1:
-                        continue
-
-                # pull out the base url 
-                base_url = document_markdown[i:where].split("/")[-2]
-
-                # find the topic number
-                topic_number = get_topic_number(conn, selector, base_url)
-
-                # form up the replacement link
-                repl_link = "/t/" + base_url + "/" + str(topic_number)
-
-                # form up the original link
-                orig_link = document_markdown[i:where]
-
-                # make the replacements in the document markdown
-                # (we don't care if it replaces them more than once, just saves us some time)
-                document_markdown = document_markdown.replace(orig_link,repl_link)
+            # find the edges of the link
+            where = document_markdown.find("nnnn", i) + 4
+            if where == -1:
+                continue
+            
+            # pull out the base url 
+            base_url = document_markdown[i:where].split("/")[-2]
+            
+            # find the topic number
+            topic_number = get_topic_number(conn, selector, base_url)
+            
+            # form up the replacement link
+            repl_link = "/t/" + base_url + "/" + str(topic_number)
+            
+            # form up the original link
+            orig_link = document_markdown[i:where]
+            
+            # make the replacements in the document markdown
+            # (we don't care if it replaces them more than once, just saves us some time)
+            document_markdown = document_markdown.replace(orig_link,repl_link)
 
 # output the fixed RAD document to stdout
 sys.stdout.write(document_markdown)

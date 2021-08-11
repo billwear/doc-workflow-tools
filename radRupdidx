@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat ~/git/maas-offline-docs/src/maas-documentation.md | radput -t 25

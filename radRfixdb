@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm ~/bin/rad.db
+radRdbload -d ~/bin/rad.db -n 25
+sudo cp ~/bin/rad.db /etc/rad/rad.db

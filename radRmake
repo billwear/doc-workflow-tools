@@ -1,6 +1,7 @@
 #!/bin/sh
 
-sqlite3 /etc/rad/rad.db 'select * from links' | grep $1 | grep -v "2\.7" | grep -v "2\.8" | cut -f2,3 -d"|" | cut -f3- -d"/" | sed -e 's/|/ /g' | sed -e 's/^/\//' | sed -e 's/i\//i /' | awk '{print  "cat /home/stormrider/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | radRmenu -b " $2 " | radput -t " $3}' > /tmp/Rmake.sh
-chmod 777 /tmp/Rmake.sh
-/tmp/Rmake.sh
-rm /tmp/Rmake.sh
+sqlite3 /etc/rad/rad.db 'select * from links' | grep "/${1%%.*}|" #| grep -v "2\.7" | grep -v "2\.8" | cut -f2,3 -d"|" | cut -f3- -d"/" | sed -e 's/|/ /g' | sed -e 's/^/\//' | sed -e 's/i\//i /'
+    #| awk '{print  "mkdir -p /tmp" $1 "; cat /home/stormrider/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | tee >(radRmenu -b " $2 " | radput -t " $3 ") | markdown > /tmp" $1 "/" $2 ".html"}' #> /tmp/Rmake.sh
+#chmod 777 /tmp/Rmake.sh
+#/tmp/Rmake.sh
+#rm /tmp/Rmake.sh
