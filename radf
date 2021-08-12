@@ -53,49 +53,16 @@ def main():
         usage()
 
     output_buffer = ""
-    
-    # loop through the incoming text lines
     for line in sys.stdin:
-
-        # if this is a RAD encoding line...
-        if begin_marker in line:
-
-            if selector in line:
-
-                # pull the next line from stdin and keep it
-                line = next(sys.stdin)  #1
-
-                # while the next line isn't a "rad-end" line...
-                while end_marker not in line:
-    
-                    # copy the line to the output buffer
-                    output_buffer += line
-
-                    # pull the next line and repeat the loop
-                    try:
-                        line = next(sys.stdin)  #2
-                    except:
-                        print("radf: unclosed rad block or poorly-terminated file")
-                        usage()
-
-                # skip forward in the for loop
-                continue;
-
-            # if the passed selector is *not* in the line...
-            if selector not in line:
-
-                # loop through all the lines until you find the "rad-end"
-                while end_marker not in line:
-
-                    # remove lines not matching the selector from the output
-                    line = next(sys.stdin) #4
-
-                # advance one line and continue the for loop
-                line = next(sys.stdin) #3
-                continue;
-
-        # copy the passed line to the output buffer
-        output_buffer += line
+        if begin_marker in line and selector in line:
+            pass
+        elif begin_marker in line and selector not in line:
+            while end_marker not in line:
+                line = next(sys.stdin)
+        elif end_marker in line:
+            pass
+        else:
+            output_buffer += line
         
     sys.stdout.write(output_buffer)
 
