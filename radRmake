@@ -1,17 +1,161 @@
-#!/bin/sh
+#!/usr/bin/python3
 
-sqlite3 /etc/rad/rad.db 'select * from links' \
-    | grep "/${1%%.*}|" \
-    | grep -v "2\.7" \
-    | grep -v "2\.8" \
-    | cut -f2,3 -d"|" \
-    | cut -f3- -d"/" \
-    | sed -e 's/|/ /g' \
-    | sed -e 's/^/\//' \
-    | sed -e 's/i\//i /' \
-    | awk '{print  "mkdir -p /tmp" $1 "; cat /home/stormrider/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | tee >(radRmenu -b " $2 " | radput -t " $3 ") | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" > /tmp" $1 "/" $2 ".html"}' > /tmp/Rmake.sh
-chmod 777 /tmp/Rmake.sh
-/tmp/Rmake.sh
- rm /tmp/Rmake.sh
-#| sed -e \"s/\\[\\/*note[A-Za-z\\" ]*\\]//g\" 
-#\"s/href=\\\"\\/t\\/\\(\\[a-zA-Z0-9-\\]*\\)\\/\\[0-9\\]*/href=\\\"https:\\/\\/$1.html/g\"
+import errno, getopt, os, sys, sqlite3, subprocess
+from sqlite3 import Error
+
+def read_index_topic(index_topic_number, url, topic_number):
+
+    print("discourse index URL table.............loading")
+    stream = os.popen('radget -t ' + str(index_topic_number))
+    print("discourse index URL table.............loaded")
+    dictionary = stream.read()
+    dictionary = dictionary[dictionary.find('## URLs'):dictionary.find('## Redirects')]
+    dictionary_lines = dictionary.split('\n')
+    for i in dictionary_lines:
+        if "https" in i:
+            topic_number.append(i.split('|')[1].split('/')[-1])
+            url.append(i.split('|')[2])
+
+def create_link(conn, link):
+
+    sql = ''' INSERT INTO links(url, topic_number) VALUES(?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, link)
+    conn.commit()
+
+    return cur.lastrowid
+
+def usage():
+    print('usage: radRmake -f MARKDOWN_FILE -u DISCOURSE_URL')
+    sys.exit(errno.EINVAL)
+    
+# compile and publish a RAD file
+#
+# human procedure in comments
+# script procedure in code
+#
+def main():
+    # choose the master file(s) we've modified
+    # - choose the filename to compile
+    # - choose the URL for which to compile it
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "f:u:")
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(errno.EINVAL)
+    if len(sys.argv) < 5:
+        usage()
+    filename = ""
+    url = ""
+    for o, a in opts:
+        if o == "-f":
+            filename = a
+        elif o == "-u":
+            input_url = a
+        else:
+            assert False
+    if filename == "" or input_url == "":
+        usage()
+
+    # HUMAN: run a final spell-check on the file against British english
+    print("have you spell-checked this document recently? (y/n)", end=" ")
+    answer = input()
+    if answer != "y":
+        print("please spell-check the document for British English,")
+        print("then come back here and try again.")
+        sys.exit(0)
+    else:
+        print("spellcheck............................affirmed")
+        
+    # ls -lsa <filename(s)> and note the timestamp
+    file_timestamp = os.path.getmtime(filename)
+    print("file timestamp (sec/epoch)............"+str(file_timestamp))
+    
+    # find each of the corresponding RAD files & note their timestamps
+    # update the database quickly, to have the latest URL info
+    conn = None;
+    print("sqlite memdb loading in version.......", end="")
+    try:
+        conn = sqlite3.connect(':memory:')
+        print(sqlite3.version)
+    except Error as e:
+        print(e)
+    create_table_sql = """CREATE TABLE IF NOT EXISTS links (
+    id integer PRIMARY KEY,
+    url text,
+    topic_number integer
+    ); """
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+    except Error as e:
+        print(e)
+    url = []
+    topic_number = []
+    read_index_topic(25,url,topic_number)
+    for u, t in zip(url, topic_number):
+        if "2.7" in u or "2.8" in u:
+            continue
+        link = (u, t)
+        create_link(conn, link)
+    print("sqlite memdb..........................loaded")
+
+    # find each RAD version in the db & get the topic number
+    c = conn.cursor()
+    c.execute("SELECT * FROM links")
+
+    rows = c.fetchall()
+
+    for row in rows:
+        print(row)
+    #    04-C. get the timestamp for each topic number
+# 05. compare each RAD timestamp to the master file's timestamp
+# 06. if a RAD version(s) is newer:
+#    06-A. pull down the newer RAD version file
+#    06-B. build a local RAD version to compare with
+#    06-C. diff the files
+#    06-D. HUMAN: identify the changes
+#    06-E. HUMAN: change the master if necessary
+#    06-F. return to the beginning
+# 07. if the master file is newer:
+#    07-A. find the topic numbers for only the published versions
+#    07-B. make sure the discourse staging dir in /tmp has been created
+#    07.C. make sure the html staging dir in /tmp has been created
+#    07-D. if file is RAD:
+#        07-D-1. run radf on the file with each selector
+#        07-D-2. run radRlink on the file with each selector
+#        07-D-3. run radRmenu on the file with each selector
+#    07-E. get each publishable RAD .MD file into the discourse RAD staging area
+#    07-F. make the HTML file(s)
+#        07-F-1. run markdown on the current-version file(s) only
+#        07-F-2. run sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" on the file(s)
+#        07-F-3. run sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" on the file
+#        07-F-4. compute the html filename
+#    07-G. get publishable html file into the right dirs in the HTML staging area
+#    07-H. HUMAN: read the RAD file in discourse to verify correctness
+#    07-I. HUMAN: check file links in discourse to verify correctness
+#    07-J. HUMAN: read the HTMl file in a browser for correctness
+#    07-K. HUMAN: check HTML file links in discourse to verify correctness
+#    07-L. run radput for each topic to publish the file
+
+
+
+# sqlite3 /etc/rad/rad.db 'select * from links' \
+#     | grep "/${1%%.*}|" \
+#     | grep -v "2\.7" \
+#     | grep -v "2\.8" \
+#     | cut -f2,3 -d"|" \
+#     | cut -f3- -d"/" \
+#     | sed -e 's/|/ /g' \
+#     | sed -e 's/^/\//' \
+#     | sed -e 's/i\//i /' \
+#     | awk '{print  "mkdir -p /tmp" $1 "; cat /home/stormrider/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | tee >(radRmenu -b " $2 " | radput -t " $3 ") | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" > /tmp" $1 "/" $2 ".html"}' > /tmp/Rmake.sh
+# chmod 777 /tmp/Rmake.sh
+# /tmp/Rmake.sh
+#  rm /tmp/Rmake.sh
+# #| sed -e \"s/\\[\\/*note[A-Za-z\\" ]*\\]//g\" 
+#  #\"s/href=\\\"\\/t\\/\\(\\[a-zA-Z0-9-\\]*\\)\\/\\[0-9\\]*/href=\\\"https:\\/\\/$1.html/g\"
+
+
+if __name__ == '__main__':
+    main()
