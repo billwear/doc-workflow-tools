@@ -109,7 +109,7 @@ def main():
     # prepare the menu, cell by cell
     table = "||" + rad_urls[0].split("/")[2]
     table += "|" + rad_urls[2].split("/")[2] + "|\n"
-    table += "|-----:|:-----:|:-----:|:-----:|:-----:|\n"
+    table += "|-----:|:-----:|:-----:|\n"
     table += "|" + rad_urls[0].split("/")[1].upper() 
     table += "| [" + rad_urls[0].split("/")[3].upper() + "](/t/-/"
     table += get_topic_number(conn,makesel(rad_urls[0]),base_url) 
