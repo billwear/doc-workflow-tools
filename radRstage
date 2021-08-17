@@ -1,0 +1,45 @@
+#!/bin/sh
+
+mkdir -p /tmp/publication-staging/non-rad
+mkdir -p /tmp/publication-staging/snap/2.9/ui
+mkdir -p /tmp/publication-staging/snap/2.9/cli
+mkdir -p /tmp/publication-staging/snap/2.9/ui/html
+mkdir -p /tmp/publication-staging/snap/2.9/cli/html
+mkdir -p /tmp/publication-staging/snap/3.0/ui
+mkdir -p /tmp/publication-staging/snap/3.0/cli
+mkdir -p /tmp/publication-staging/snap/3.0/ui/html
+mkdir -p /tmp/publication-staging/snap/3.0/cli/html
+mkdir -p /tmp/publication-staging/deb/2.9/ui
+mkdir -p /tmp/publication-staging/deb/2.9/cli
+mkdir -p /tmp/publication-staging/deb/2.9/ui/html
+mkdir -p /tmp/publication-staging/deb/2.9/cli/html
+mkdir -p /tmp/publication-staging/deb/3.0/ui
+mkdir -p /tmp/publication-staging/deb/3.0/cli
+mkdir -p /tmp/publication-staging/deb/3.0/ui/html
+mkdir -p /tmp/publication-staging/deb/3.0/cli/html
+
+sqlite3 /etc/rad/rad.db 'select * from links' \
+    | grep "/${1%%.*}|" \
+    | grep -v "2\.7" \
+    | grep -v "2\.8" \
+    | cut -f2,3 -d"|" \
+    | cut -f3- -d"/" \
+    | sed -e 's/|/ /g' \
+    | sed -e 's/^/\//' \
+    | sed -e 's/i\//i /' \
+    | awk '{print  "cat /home/stormrider/Dropbox/src/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | radRmenu -b " $2 " > /tmp/publication-staging" $1 "/" $2 ".md"}' > /tmp/Rmake.sh
+sqlite3 /etc/rad/rad.db 'select * from links' \
+    | grep "/${1%%.*}|" \
+    | grep -v "2\.7" \
+    | grep -v "2\.8" \
+    | cut -f2,3 -d"|" \
+    | cut -f3- -d"/" \
+    | sed -e 's/|/ /g' \
+    | sed -e 's/^/\//' \
+    | sed -e 's/i\//i /' \
+    | awk '{print  "cat /home/stormrider/Dropbox/src/git/maas-offline-docs/src/" $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" > /tmp/publication-staging" $1 "/html/" $2 ".html"}' >> /tmp/Rmake.sh
+chmod 777 /tmp/Rmake.sh
+/tmp/Rmake.sh
+# rm /tmp/Rmake.sh
+#| sed -e \"s/\\[\\/*note[A-Za-z\\" ]*\\]//g\" 
+#\"s/href=\\\"\\/t\\/\\(\\[a-zA-Z0-9-\\]*\\)\\/\\[0-9\\]*/href=\\\"https:\\/\\/$1.html/g\"

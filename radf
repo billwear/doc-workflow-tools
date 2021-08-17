@@ -38,7 +38,7 @@ def main():
         else:
             assert False
 
-     # how do i validate the options?
+    # how do i validate the options?
     # `raddel -t TOPIC_NUMBEr [-a AUTH_FILE]`
     if begin_marker == "":
         print("radf: no begin marker specified")

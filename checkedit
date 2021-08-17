@@ -3,10 +3,10 @@
 echo "#!/bin/bash" > /tmp/checkscript
 sqlite3 /etc/rad/rad.db 'select * from links where url like "%/'$1'"' | cut -f3 -d'|' | sed -e 's/^/==> /' > /tmp/checkfile
 sqlite3 /etc/rad/rad.db 'select * from links where url like "%/'$1'"' | cut -f3 -d"|" | sed -e 's/^/date --date=$(radlastmod -t /' | sed -e 's/$/ | cut -f1 -d,) +%s >> \/tmp\/checkfile/' >> /tmp/checkscript
-echo 'date +%s -r ~/git/maas-offline-docs/src/'$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'echo " ==> ~/git/maas-offline-docs/src/'$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'date +%s -r ~/git/maas-offline-docs/cpm/'$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'echo " ==> ~/git/maas-offline-docs/cpm/'$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
+echo 'date +%s -r ~/Dropbox/src/git/maas-offline-docs/src/'$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
+echo 'echo " ==> ~/Dropbox/src/git/maas-offline-docs/src/'$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
+echo 'date +%s -r ~/Dropbox/src/git/maas-offline-docs/cpm/'$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
+echo 'echo " ==> ~/Dropbox/src/git/maas-offline-docs/cpm/'$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
 chmod 777 /tmp/checkscript
 /tmp/checkscript
 #cat /tmp/checkfile
