@@ -35,8 +35,15 @@ def get_topic_number(conn, selector, url):
     cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
     topic_number = cur.fetchall()
 
-    # clean up the topic number on the way out
-    return int(str(topic_number).split('(')[1].split(',')[0])
+    # try to clean up the topic number; error out if can't
+    try:
+        topic_number_return = str(topic_number).split('(')[1].split(',')[0]
+    except:
+        print("url = ", url)
+        print("selector = ", selector)
+        sys.exit(1)
+        
+    return int(topic_number_return)
 
 # usage message
 def usage():
