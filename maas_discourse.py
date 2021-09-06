@@ -54,7 +54,7 @@ containing "_api_" in their name access the API, those without work on passed da
    -- returns: a boolean indicating whether timestamp1 is identical to timestamp2
 """
 
-import json, subprocess, errno, datetime, os
+import json, sys, subprocess, errno, datetime, os
 from datetime import timedelta
 from yaml import load, dump
 try:
@@ -124,7 +124,8 @@ def md_api_get_topic(topic_id, credentials):
             topic_json = json.loads(output)
         except:
             ### handle "topic doesn't exist" error
-            print("error ", errno.ENODATA, ": Topic doesn't exist")
+            print("error in md_api_get_topic", errno.ENODATA, ": Topic doesn't exist")
+            print(output)
             sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
@@ -466,37 +467,62 @@ def md_api_put_post(post_id, markdown, credentials):
     number of calls are made in a short time period.
     '''
 
+    debug = False
+    
+    if debug == True:
+        print("md_api_put_post::entering, post id", post_id)
+    
     # pad the markdown to 9000 characters to avoid a discourse bug
     put_buffer = markdown.ljust(9000)
+    if debug == True:
+        print("md_api_put_post::just padded put_buffer for post id", post_id)
 
     # create a dictionary buffer for the put_buffer
     data = {}
+    if debug == True:
+        print("md_api_put_post::just created dict buffer for post id", post_id)
 
     # load the put_buffer in the appropriate json key
     data["raw"] = put_buffer
+    if debug == True:
+        print("md_api_put_post::just loaded put_buffer for post id", post_id)
 
     # open a temp file to store the markdown ad json
     # (the put works better if it draws from a file)
     f = open("foo.json", "w")
+    if debug == True:
+        print("md_api_put_post::opened foo.json for post id", post_id)
 
     # convert the data dictionary to json and store it in the temp file
     f.write(json.dumps(data))
+    if debug == True:
+        print("md_api_put_post::wrote to foo.json for post id", post_id)
 
     # close the temp file
     f.close()
+    if debug == True:
+        print("md_api_put_post::closed foo.json for post id", post_id)
 
     # copy the auth data into individual parameters
     apikey = "Api-Key: " + credentials["api_key"]
     apiusername = "Api-Username: " + credentials["api_username"]
+    if debug == True:
+        print("md_api_put_post::copied creds for post id", post_id)
 
     # build the appropriate URL based on the calling sequence
     url = credentials["base_url"] + "/posts/{" + str(post_id) + "}.json"
+    if debug == True:
+        print("md_api_put_post::formulated URL for post id", post_id)
 
     # set rate_limit_error flag
     rate_limit_error = True
+    if debug == True:
+        print("md_api_put_post::just init'd rate_limit_error for post_id", post_id)
 
     # while rate limit error is True
     while rate_limit_error == True:
+        if debug == True:
+            print("md_api_put_post::top of while rate_limit_error loop")
 
         ## use the curl command to post put_buffer to the post on discourse,
         ## and read the result into a usable return buffer
@@ -518,23 +544,36 @@ def md_api_put_post(post_id, markdown, credentials):
             ],
             stdout=subprocess.PIPE,
         )
+        if debug == True:
+            print("md_api_put_post::right after curl for post id", post_id)
 
         ## read the curl result into a usable buffer
         output = proc.stdout.read()
+        if debug == True:
+            print("md_api_put_post::after proc.stdout.read()")
 
         ## try to convert the result to json
         try:
+            if debug == True:
+                print("md_api_put_post::trying to convert post_json to json")
             post_json = json.loads(output)
+
         ### handle "topic doesn't exist" error
         except:
-            print("error", errno.ENODATA, ": post", post_id, "doesn't exist")
+            if debug == True:
+                print("error", errno.ENODATA, ": post", post_id, "doesn't exist")
             sys.exit(errno.ENODATA)
 
         ## try to see if there's a rate_limit error
         try:
+            if debug == True:
+                print("md_api_put_post :: trying rate_limit_error")
+
             ### if so, sleep for 20s and continue the loop
             if post_json["error_type"] == "rate_limit":
                 rate_limit_error = True
+                if debug == True:
+                    print("md_api_put_post::rate_limit_error")
                 time.sleep(20)
                 continue;
         ## if no rate error

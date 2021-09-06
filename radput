@@ -67,10 +67,10 @@ def main():
 
     # place the markdown in the appropriate json keys
     data["raw"] = markdown
-
     # write the post
     post_json = maas_discourse.md_api_put_post(post_number, markdown, credentials)
         
-
+    print("^", end="")
+    
 if __name__ == '__main__':
     main()
