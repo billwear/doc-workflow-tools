@@ -9,10 +9,6 @@ mkdir -p /tmp/publication-staging/snap/3.0/ui
 mkdir -p /tmp/publication-staging/snap/3.0/cli
 mkdir -p /tmp/publication-staging/snap/3.0/ui/html
 mkdir -p /tmp/publication-staging/snap/3.0/cli/html
-mkdir -p /tmp/publication-staging/snap/3.1/ui
-mkdir -p /tmp/publication-staging/snap/3.1/cli
-mkdir -p /tmp/publication-staging/snap/3.1/ui/html
-mkdir -p /tmp/publication-staging/snap/3.1/cli/html
 mkdir -p /tmp/publication-staging/deb/2.9/ui
 mkdir -p /tmp/publication-staging/deb/2.9/cli
 mkdir -p /tmp/publication-staging/deb/2.9/ui/html
@@ -21,10 +17,6 @@ mkdir -p /tmp/publication-staging/deb/3.0/ui
 mkdir -p /tmp/publication-staging/deb/3.0/cli
 mkdir -p /tmp/publication-staging/deb/3.0/ui/html
 mkdir -p /tmp/publication-staging/deb/3.0/cli/html
-mkdir -p /tmp/publication-staging/deb/3.1/ui
-mkdir -p /tmp/publication-staging/deb/3.1/cli
-mkdir -p /tmp/publication-staging/deb/3.1/ui/html
-mkdir -p /tmp/publication-staging/deb/3.1/cli/html
 
 sqlite3 /etc/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
@@ -35,7 +27,7 @@ sqlite3 /etc/rad/rad.db 'select * from links' \
     | sed -e 's/|/ /g' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
-    | awk '{print  "cat " $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | radRmenu -b " $2 " > /tmp/publication-staging" $1 "/" $2 ".md"}' > /tmp/Rmake.sh
+    | awk '{print  "cat " $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " > /tmp/publication-staging" $1 "/" $2 ".md"}' > /tmp/Rmake.sh
 sqlite3 /etc/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
     | grep -v "2\.7" \

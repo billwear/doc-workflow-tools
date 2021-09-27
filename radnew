@@ -64,9 +64,10 @@ def main():
     topic_id = maas_discourse.md_api_new_topic(title, markdown, category, credentials)
 
     topic_id_return = str(topic_id) + "\n"
+    output = title + " " + topic_id_return
     
     # return results to called
-    sys.stdout.write(topic_id_return)
+    sys.stdout.write(output)
         
 
 if __name__ == '__main__':
