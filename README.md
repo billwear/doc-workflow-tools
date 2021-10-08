@@ -215,9 +215,15 @@ The point is that you can use these tools, with a moderate amount of shell skill
 
 ## radtools cleanup plans
 
-x remove obsolete files/versions
-x evaluate need for `-nomenu` versions
+- x remove obsolete files/versions
+- x evaluate need for `-nomenu` versions
 - rename tools more consistenly, propagate changes
+- x rename radRdbload & eliminate radRdbfix
+- radRmake --> radmake
+- radRstage --> radstage
+- radRmenu --> radmenu
+- radRlink --> radlink
+- radf --> radfilter
 - move rad.db and dc.yaml out of /etc/rad and into ~/.config
 - better allocate tool functionality
 - fix radput/.py lib to reject changes if target changed
