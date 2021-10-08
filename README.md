@@ -217,13 +217,15 @@ The point is that you can use these tools, with a moderate amount of shell skill
 
 - x remove obsolete files/versions
 - x evaluate need for `-nomenu` versions
-- rename tools more consistenly, propagate changes
+- x rename tools more consistenly, propagate changes
 - x rename radRdbload & eliminate radRdbfix
 - x radRmake --> radmake
 - x radRstage --> radstage
 - x radRmenu --> radmenu
 - x radRlink --> radlink
-- radf --> radfilter
+- x radf --> radfilter
+- x radRsortmods --> radsortmods
+- x remove rad.db from git repo
 - move rad.db and dc.yaml out of /etc/rad and into ~/.config/rad
 - radtools now read ~/.config/rad/rc file for freq-used params
 - better allocate tool functionality
