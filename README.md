@@ -212,23 +212,3 @@ rm /tmp/Rmake.sh
 It's pretty simple, and it takes a base URL fragment (the shell $1, in the second line) to match.  By judiciously using that grep string, you can match quite a few of the topics (for example, if you enter "machines" as a grep fragment, you'll update "Machines," "Deploy machines," "Commission machines," "Add machines," .... Note that wildcards don't work the same in this context, but because of delays that the discourse server inserts when you have more than 10-15, back-to-back requests, a massive, full-set make isn't really do-able anyway.
 
 The point is that you can use these tools, with a moderate amount of shell skill, to build whatever you need to accommodate whatever the current doc structure might be -- and that's cool, to me.
-
-## radtools cleanup plans
-
-- x remove obsolete files/versions
-- x evaluate need for `-nomenu` versions
-- x rename tools more consistenly, propagate changes
-- x rename radRdbload & eliminate radRdbfix
-- x radRmake --> radmake
-- x radRstage --> radstage
-- x radRmenu --> radmenu
-- x radRlink --> radlink
-- x radf --> radfilter
-- x radRsortmods --> radsortmods
-- x remove rad.db from git repo
-- x checkedit --> raddiff
-- x move rad.db out of /etc/rad and into ~/.config/rad
-- move dc.yaml out of /etc/rad and into ~/.config/rad
-- fix radput/.py lib to reject changes if target changed
-- evaluate calling sequences, option checking (fix?)
-- radtools now read ~/.config/rad/rad.cfg file for freq-used params

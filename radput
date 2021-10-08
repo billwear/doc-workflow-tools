@@ -40,7 +40,6 @@ def main():
             assert False
 
     # how do i validate the options?
-    # `radget -t TOPIC_NUMBER [-a AUTH_FILE]`
     if topic_number == 0:
         print("radget: invalid topic number:", topic_number)
         usage()
