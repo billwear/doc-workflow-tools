@@ -2,6 +2,7 @@
 
 import sys, json, subprocess, os, errno
 from yaml import load, dump
+from pathlib import Path
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -99,8 +100,9 @@ else:
     topic_number = sys.argv[2]
 
 # read config file to get api-key, api-usr, and discourse url
+home = str(Path.home())
 try:
-    cfile = open("/etc/rad/dc.yaml", "r")
+    cfile = open(home+"/.config/rad/dc.yaml", "r")
 except:
     print('rlet: cannot open', path_to_config)
     print("rlet: exiting")

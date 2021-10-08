@@ -4,6 +4,7 @@
 import getopt, sys, errno, maas_discourse, json
 import os.path
 from os import path
+from pathlib import Path
 
 # how do we print the usage instructions (and exit)?
 def usage():
@@ -26,7 +27,8 @@ def main():
 
     # where do i store the option values?
     topic_number = 0
-    auth_file = "/etc/rad/dc.yaml"
+    home = str(Path.home())
+    auth_file = home + "/.config/rad/dc.yaml"
 
     # how do i pull out the options?
     for o, a in opts:
