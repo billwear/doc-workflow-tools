@@ -215,11 +215,11 @@ The point is that you can use these tools, with a moderate amount of shell skill
 
 ## radtools cleanup plans
 
-- remove obsolete files/versions
+x remove obsolete files/versions
+x evaluate need for `-nomenu` versions
 - name things more efficiently & propagate changes
 - better allocate tool functionality
 - fix radput/.py lib to reject changes if target changed
 - consolidate radRdbload and radRfixdb
-- evaluate need for `-nomenu` versions
 - evaluate calling sequences, option checking (fix?)
 - rename tools to have clearer names
