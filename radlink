@@ -2,6 +2,7 @@
 
 import os, sys, sqlite3, errno
 from sqlite3 import Error
+from pathlib import Path
 
 # function to create sqlite database connection
 def create_connection(db_file):
@@ -47,8 +48,11 @@ def get_topic_number(conn, selector, url):
 
 # usage message
 def usage():
-    print("usage: radRlink -s selector")
+    print("usage: radlink -s selector")
     sys.exit(errno.EINVAL)
+
+# identify the user's home directory
+home = str(Path.home())
 
 # rudimentary command line handling
 if len(sys.argv) != 3 or sys.argv[1] != "-s":
@@ -63,11 +67,11 @@ dbfile = None
 # find the db file
 if os.path.isfile("./rad.db") == True:
     dbfile = "./rad.db"
-elif os.path.isfile("/etc/rad/rad.db") == True:
-    dbfile = "/etc/rad/rad.db"
+elif os.path.isfile(home+"/.config/rad/rad.db") == True:
+    dbfile = home+"/.config/rad/rad.db"
 else:
     print("Error when trying to access RAD database:", os.strerror(errno.ENOENT))
-    print("radRlink: exiting")
+    print("radlink: exiting")
     sys.exit(errno.ENOENT)
 
 # make a connection to the rad.db database

@@ -26,7 +26,7 @@ mkdir -p /tmp/publication-staging/deb/3.1/cli
 mkdir -p /tmp/publication-staging/deb/3.1/ui/html
 mkdir -p /tmp/publication-staging/deb/3.1/cli/html
 
-sqlite3 /etc/rad/rad.db 'select * from links' \
+sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
     | grep -v "2\.7" \
     | grep -v "2\.8" \
@@ -36,7 +36,7 @@ sqlite3 /etc/rad/rad.db 'select * from links' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
     | awk '{print  "cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | radmenu -b " $2 " > /tmp/publication-staging" $1 "/" $2 ".md"}' > /tmp/Rmake.sh
-sqlite3 /etc/rad/rad.db 'select * from links' \
+sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
     | grep -v "2\.7" \
     | grep -v "2\.8" \

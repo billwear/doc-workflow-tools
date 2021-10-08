@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 
-## radRdbload version 1.0, stamped 11:45 23 June 2021
+## radupdb version 1.0, stamped 11:45 23 June 2021
 ## coded by bill.wear@canonical.com
 
-import sqlite3, sys, os, errno, getopt, subprocess
+import sqlite3, sys, os, errno, getopt, subprocess, shutil
 from sqlite3 import Error
+from pathlib import Path
 
 ## usage message
 def usage():
-    print("usage: radRdbload -d DB_FILE_NAME -n INDEX_TOPIC_NUMBER [-a AUTH_FILE_NAME]")
+    print("usage: radRdbload -n INDEX_TOPIC_NUMBER [-d DB_FILE_NAME] [-a AUTH_FILE_NAME]")
     sys.exit(errno.EINVAL)
     
 ## create the database connection
@@ -61,18 +62,21 @@ def create_link(conn, link):
     return cur.lastrowid
 
 def main():
+
     ## process the command line
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:a:n:")
+        opts, args = getopt.getopt(sys.argv[1:], "a:n:d:")
     except getopt.GetoptError as err:
         print(err)
         usage()
 
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 3:
         usage()
 
+    home = str(Path.home())
+
     ## set option values to recognizable blanks
-    db_file = "/etc/rad/rad.db"
+    db_file = home + "/.config/rad/rad.db"
     auth_file = "/etc/rad/dc.yaml"
     index_topic_number = 0
     
@@ -111,6 +115,10 @@ def main():
     topic_number integer
     ); """
 
+    # move the existing rad.db database to backup
+    # to avoid duplicate records
+    shutil.move(home+'/.config/rad/rad.db', home+'/.config/rad/rad.db~')
+        
     ## create a connection to the database
     ## note that, since the master is in /etc/rad (sudo access required),
     ## new databases are recommended to be loaded in the local directory;

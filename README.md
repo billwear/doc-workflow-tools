@@ -227,7 +227,8 @@ The point is that you can use these tools, with a moderate amount of shell skill
 - x radRsortmods --> radsortmods
 - x remove rad.db from git repo
 - x checkedit --> raddiff
-- move rad.db and dc.yaml out of /etc/rad and into ~/.config/rad
-- radtools now read ~/.config/rad/rc file for freq-used params
+- x move rad.db out of /etc/rad and into ~/.config/rad
+- move dc.yaml out of /etc/rad and into ~/.config/rad
 - fix radput/.py lib to reject changes if target changed
 - evaluate calling sequences, option checking (fix?)
+- radtools now read ~/.config/rad/rad.cfg file for freq-used params

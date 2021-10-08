@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-import os, sys, sqlite3, errno, getopt
+import os, sys, sqlite3, errno, getopt, shutil
 from sqlite3 import Error
+from pathlib import Path
 
 # create a connection to the database file
 def create_connection(db_file):
@@ -90,8 +91,11 @@ def main():
     # gulping it because links sometimes span lines
     document_markdown = sys.stdin.read()
 
+    # find the user's home directory
+    home = str(Path.home())
+
     # make a connection to the rad.db database
-    conn = create_connection(r"/etc/rad/rad.db")
+    conn = create_connection(home+r"/.config/rad/rad.db")
     
     # retrieve all db records where URL contains base_url
     matched_lines = find_matching_urls(base_url, conn)
