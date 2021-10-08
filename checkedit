@@ -10,5 +10,5 @@ echo 'echo " ==> '$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
 chmod 777 /tmp/checkscript
 /tmp/checkscript
 #cat /tmp/checkfile
-cat /tmp/checkfile | radRsortmods
+cat /tmp/checkfile | radsortmods
 
