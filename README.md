@@ -217,7 +217,8 @@ The point is that you can use these tools, with a moderate amount of shell skill
 
 x remove obsolete files/versions
 x evaluate need for `-nomenu` versions
-- name things more efficiently & propagate changes
+- rename tools more consistenly, propagate changes
+- move rad.db and dc.yaml out of /etc/rad and into ~/.config
 - better allocate tool functionality
 - fix radput/.py lib to reject changes if target changed
 - consolidate radRdbload and radRfixdb

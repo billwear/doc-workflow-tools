@@ -1,5 +1,0 @@
-#!/bin/bash
-
-rm /tmp/rad.db
-radRdbload -d /tmp/rad.db -n 25
-sudo cp /tmp/rad.db /etc/rad/rad.db
