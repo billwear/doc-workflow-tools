@@ -222,7 +222,7 @@ The point is that you can use these tools, with a moderate amount of shell skill
 - x radRmake --> radmake
 - x radRstage --> radstage
 - x radRmenu --> radmenu
-- radRlink --> radlink
+- x radRlink --> radlink
 - radf --> radfilter
 - move rad.db and dc.yaml out of /etc/rad and into ~/.config/rad
 - radtools now read ~/.config/rad/rc file for freq-used params
