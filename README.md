@@ -219,14 +219,14 @@ The point is that you can use these tools, with a moderate amount of shell skill
 - x evaluate need for `-nomenu` versions
 - rename tools more consistenly, propagate changes
 - x rename radRdbload & eliminate radRdbfix
-- radRmake --> radmake
+- x radRmake --> radmake
 - radRstage --> radstage
 - radRmenu --> radmenu
 - radRlink --> radlink
 - radf --> radfilter
-- move rad.db and dc.yaml out of /etc/rad and into ~/.config
+- move rad.db and dc.yaml out of /etc/rad and into ~/.config/rad
+- radtools now read ~/.config/rad/rc file for freq-used params
 - better allocate tool functionality
 - fix radput/.py lib to reject changes if target changed
 - consolidate radRdbload and radRfixdb
 - evaluate calling sequences, option checking (fix?)
-- rename tools to have clearer names
