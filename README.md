@@ -213,5 +213,13 @@ It's pretty simple, and it takes a base URL fragment (the shell $1, in the secon
 
 The point is that you can use these tools, with a moderate amount of shell skill, to build whatever you need to accommodate whatever the current doc structure might be -- and that's cool, to me.
 
+## radtools cleanup plans
 
-
+- remove obsolete files/versions
+- name things more efficiently & propagate changes
+- better allocate tool functionality
+- fix radput/.py lib to reject changes if target changed
+- consolidate radRdbload and radRfixdb
+- evaluate need for `-nomenu` versions
+- evaluate calling sequences, option checking (fix?)
+- rename tools to have clearer names
