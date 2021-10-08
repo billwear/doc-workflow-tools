@@ -83,7 +83,7 @@ def main():
 
     # how do i validate the options?
     if base_url == "":
-        print("radRmenu: no base_url specified")
+        print("radmenu: no base_url specified")
         usage()
 
     # pull in the document markdown from stdin;

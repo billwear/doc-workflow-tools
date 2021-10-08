@@ -220,7 +220,7 @@ The point is that you can use these tools, with a moderate amount of shell skill
 - rename tools more consistenly, propagate changes
 - x rename radRdbload & eliminate radRdbfix
 - x radRmake --> radmake
-- radRstage --> radstage
+- x radRstage --> radstage
 - radRmenu --> radmenu
 - radRlink --> radlink
 - radf --> radfilter
