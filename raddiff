@@ -1,14 +1,7 @@
 #! /bin/bash
 
-echo "#!/bin/bash" > /tmp/checkscript
-sqlite3 ~/.config/rad/rad.db 'select * from links where url like "%/'$1'"' | cut -f3 -d'|' | sed -e 's/^/==> /' > /tmp/checkfile
-sqlite3 ~/.config/rad/rad.db 'select * from links where url like "%/'$1'"' | cut -f3 -d"|" | sed -e 's/^/date --date=$(radlastmod -t /' | sed -e 's/$/ | cut -f1 -d,) +%s >> \/tmp\/checkfile/' >> /tmp/checkscript
-echo 'date +%s -r '$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'echo " ==> '$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'date +%s -r '$1'.md | tr -d "\n" >> /tmp/checkfile' >> /tmp/checkscript
-echo 'echo " ==> '$1'.md" >> /tmp/checkfile' >> /tmp/checkscript
-chmod 777 /tmp/checkscript
-/tmp/checkscript
-#cat /tmp/checkfile
-cat /tmp/checkfile | radsortmods
+sqlite3 ~/.config/rad/rad.db 'select * from links where url like "%/'$1'"' | cut -f3 -d'|' | xargs -I % sh -c 'radlastmod -t %' > /tmp/checkfile
+date +%s -r "$1.md" | tr -d "\n" >> /tmp/checkfile
+echo " ==> $1.md" >> /tmp/checkfile
+cat /tmp/checkfile | sort
 

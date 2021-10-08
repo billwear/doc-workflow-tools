@@ -141,7 +141,10 @@ except:
     sys.stdout.write("0,0")
     sys.exit(errno.ENODATA)
 
-sys.stdout.write(created_at + "," + username)
+proc = subprocess.Popen(['date','--date='+str(created_at), "+%s"], stdout=subprocess.PIPE)
+epoch = proc.stdout.read().decode("utf-8").split("\n")[0]
+
+sys.stdout.write(epoch + " ==> " + str(topic_number))
 sys.stdout.write('\n')
 
      

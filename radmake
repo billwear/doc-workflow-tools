@@ -19,9 +19,10 @@ sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | sed -e 's/|/ /g' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
-    | awk '{print  "cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" > /tmp/publication-staging" $1 "/html/" $2 ".html"}' >> /tmp/Rmake.sh
+    | awk '{print  "cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" > /tmp/publication-staging" $1 "/html/" $2 ".html"}' >> /tmp/Rmake.sh
 chmod 777 /tmp/Rmake.sh
 /tmp/Rmake.sh
+touch "$1.md"
 #rm /tmp/Rmake.sh
 #| sed -e \"s/\\[\\/*note[A-Za-z\\" ]*\\]//g\" 
 #\"s/href=\\\"\\/t\\/\\(\\[a-zA-Z0-9-\\]*\\)\\/\\[0-9\\]*/href=\\\"https:\\/\\/$1.html/g\"
