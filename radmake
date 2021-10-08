@@ -9,7 +9,7 @@ sqlite3 /etc/rad/rad.db 'select * from links' \
     | sed -e 's/|/ /g' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
-    | awk '{print  "cat " $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radRlink -s " $1 " | radmenu -b " $2 " | radput -t " $3}' > /tmp/Rmake.sh
+    | awk '{print  "cat " $2 ".md | radf -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | radmenu -b " $2 " | radput -t " $3}' > /tmp/Rmake.sh
 sqlite3 /etc/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
     | grep -v "2\.7" \

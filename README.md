@@ -221,7 +221,7 @@ The point is that you can use these tools, with a moderate amount of shell skill
 - x rename radRdbload & eliminate radRdbfix
 - x radRmake --> radmake
 - x radRstage --> radstage
-- radRmenu --> radmenu
+- x radRmenu --> radmenu
 - radRlink --> radlink
 - radf --> radfilter
 - move rad.db and dc.yaml out of /etc/rad and into ~/.config/rad
