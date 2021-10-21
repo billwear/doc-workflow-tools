@@ -117,7 +117,10 @@ def main():
 
     # move the existing rad.db database to backup
     # to avoid duplicate records
-    shutil.move(home+'/.config/rad/rad.db', home+'/.config/rad/rad.db~')
+    try:
+        shutil.move(home+'/.config/rad/rad.db', home+'/.config/rad/rad.db~')
+    except:
+        pass
         
     ## create a connection to the database
     ## note that, since the master is in /etc/rad (sudo access required),
