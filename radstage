@@ -1,30 +1,29 @@
 #!/bin/sh
 
-mkdir -p /tmp/publication-staging/non-rad
-mkdir -p /tmp/publication-staging/snap/2.9/ui
-mkdir -p /tmp/publication-staging/snap/2.9/cli
-mkdir -p /tmp/publication-staging/snap/2.9/ui/html
-mkdir -p /tmp/publication-staging/snap/2.9/cli/html
-mkdir -p /tmp/publication-staging/snap/3.0/ui
-mkdir -p /tmp/publication-staging/snap/3.0/cli
-mkdir -p /tmp/publication-staging/snap/3.0/ui/html
-mkdir -p /tmp/publication-staging/snap/3.0/cli/html
-mkdir -p /tmp/publication-staging/snap/3.1/ui
-mkdir -p /tmp/publication-staging/snap/3.1/cli
-mkdir -p /tmp/publication-staging/snap/3.1/ui/html
-mkdir -p /tmp/publication-staging/snap/3.1/cli/html
-mkdir -p /tmp/publication-staging/deb/2.9/ui
-mkdir -p /tmp/publication-staging/deb/2.9/cli
-mkdir -p /tmp/publication-staging/deb/2.9/ui/html
-mkdir -p /tmp/publication-staging/deb/2.9/cli/html
-mkdir -p /tmp/publication-staging/deb/3.0/ui
-mkdir -p /tmp/publication-staging/deb/3.0/cli
-mkdir -p /tmp/publication-staging/deb/3.0/ui/html
-mkdir -p /tmp/publication-staging/deb/3.0/cli/html
-mkdir -p /tmp/publication-staging/deb/3.1/ui
-mkdir -p /tmp/publication-staging/deb/3.1/cli
-mkdir -p /tmp/publication-staging/deb/3.1/ui/html
-mkdir -p /tmp/publication-staging/deb/3.1/cli/html
+mkdir -p ~/.local/publication-staging/snap/2.9/ui
+mkdir -p ~/.local/publication-staging/snap/2.9/cli
+mkdir -p ~/.local/publication-staging/snap/2.9/ui/html
+mkdir -p ~/.local/publication-staging/snap/2.9/cli/html
+mkdir -p ~/.local/publication-staging/snap/3.0/ui
+mkdir -p ~/.local/publication-staging/snap/3.0/cli
+mkdir -p ~/.local/publication-staging/snap/3.0/ui/html
+mkdir -p ~/.local/publication-staging/snap/3.0/cli/html
+mkdir -p ~/.local/publication-staging/snap/3.1/ui
+mkdir -p ~/.local/publication-staging/snap/3.1/cli
+mkdir -p ~/.local/publication-staging/snap/3.1/ui/html
+mkdir -p ~/.local/publication-staging/snap/3.1/cli/html
+mkdir -p ~/.local/publication-staging/deb/2.9/ui
+mkdir -p ~/.local/publication-staging/deb/2.9/cli
+mkdir -p ~/.local/publication-staging/deb/2.9/ui/html
+mkdir -p ~/.local/publication-staging/deb/2.9/cli/html
+mkdir -p ~/.local/publication-staging/deb/3.0/ui
+mkdir -p ~/.local/publication-staging/deb/3.0/cli
+mkdir -p ~/.local/publication-staging/deb/3.0/ui/html
+mkdir -p ~/.local/publication-staging/deb/3.0/cli/html
+mkdir -p ~/.local/publication-staging/deb/3.1/ui
+mkdir -p ~/.local/publication-staging/deb/3.1/cli
+mkdir -p ~/.local/publication-staging/deb/3.1/ui/html
+mkdir -p ~/.local/publication-staging/deb/3.1/cli/html
 
 sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
@@ -35,7 +34,7 @@ sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | sed -e 's/|/ /g' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
-    | awk '{print  "cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | radmenu -b " $2 " > /tmp/publication-staging" $1 "/" $2 ".md"}' > /tmp/Rmake.sh
+    | awk '{print  "cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | radmenu -b " $2 " > ~/.local/publication-staging" $1 "/" $2 ".md"}' > ~/.local/Rmake.sh
 sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \
     | grep -v "2\.7" \
@@ -45,9 +44,9 @@ sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | sed -e 's/|/ /g' \
     | sed -e 's/^/\//' \
     | sed -e 's/i\//i /' \
-    | awk '{print  "cat html-header.html > /tmp/publication-staging" $1 "/html/" $2 ".html; cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" >> /tmp/publication-staging" $1 "/html/" $2 ".html; cat html-footer.html >> /tmp/publication-staging" $1 "/html/" $2 ".html"}' >> /tmp/Rmake.sh
-chmod 777 /tmp/Rmake.sh
-/tmp/Rmake.sh
-# rm /tmp/Rmake.sh
+    | awk '{print  "cat html-header.html > ~/.local/publication-staging" $1 "/html/" $2 ".html; cat " $2 ".md | radfilter -b rad-begin -e rad-end -s " $1 " | radlink -s " $1 " | markdown | sed -e \"s/\\[\\/*note[A-Za-z \\\"]*\\]//g\" | sed -e  \"s/href=\\\"\\/t\\/\\([^\\/]*\\)\\/[0-9]*/href=\\\"\\1.html/g\" >> ~/.local/publication-staging" $1 "/html/" $2 ".html; cat html-footer.html >> ~/.local/publication-staging" $1 "/html/" $2 ".html"}' >> ~/.local/Rmake.sh
+chmod 777 ~/.local/Rmake.sh
+~/.local/Rmake.sh
+# rm ~/.local/Rmake.sh
 #| sed -e \"s/\\[\\/*note[A-Za-z\\" ]*\\]//g\" 
 #\"s/href=\\\"\\/t\\/\\(\\[a-zA-Z0-9-\\]*\\)\\/\\[0-9\\]*/href=\\\"https:\\/\\/$1.html/g\"
