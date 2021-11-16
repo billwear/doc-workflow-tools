@@ -15,7 +15,7 @@ except ImportError:
 
 # how do we print the usage instuctions (and exit)?
 def usage():
-    print("usage: rad2html -t HTML_TITLE -f HTML_BASENAME [-i INPUT_MARKDOWN_FILE] [-o OUTPUT_HTML_FILE]")
+    print("usage: rad2html -t HTML_TITLE -f HTML_BASENAME -T HTML_TEMPLATE_FILE [-i INPUT_MARKDOWN_FILE] [-o OUTPUT_HTML_FILE]")
     sys.exit(errno.EINVAL)
     
 # what is the main execution flow?
@@ -24,7 +24,7 @@ def main():
 
     # can we successfully get valid program options?
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "i:o:t:f:")
+        opts, args = getopt.getopt(sys.argv[1:], "i:o:t:f:T:")
     except getopt.GetoptError as err:
         print(err)
         sys.exit(errno.EINVAL)
@@ -34,6 +34,7 @@ def main():
     output_file = ""
     page_title = ""
     html_basename = ""
+    html_template = ""
 
     # how do i pull out the options?
     for o, a in opts:
@@ -45,6 +46,8 @@ def main():
             page_title = a
         elif o == "-f":
             html_basename = a
+        elif o == "-T":
+            html_template = a
         else:
             assert False
 
@@ -56,6 +59,11 @@ def main():
     # did we get a document basename?
     if html_basename == "":
         print("rad2html: no HTML basename specified")
+        usage()
+
+    # did we get an HTML template file path?
+    if html_template == "":
+        print("rad2html: no HTML template file path specified")
         usage()
         
     # where do i get my input text?
@@ -90,6 +98,7 @@ def main():
 
     ## capture image file names and properties
     for x in imagelines:
+#        print(x)
         img_url = str(re.findall(r'<img src="([^ ]*)">',x)).split("'")[1]
         img_fnam = "/tmp/images/" + str(img_url).split("/")[-1].split(")")[0].split("'")[0]
         img_link = "images/" + x.split("/")[-1].split(")")[0].split('"')[0]
@@ -126,10 +135,12 @@ def main():
         repl_img_line += 'width="690" '
         #                repl_img_line += 'height="' + str(corr_height) + '" '
         repl_img_line += 'src="' + img_link + '">'
+#        print(repl_img_line)
+#        sys.exit(0)
 
         ## replace the image line in the markdown
-#        md = md.replace(x, repl_img_line)
-        md = md.replace(img_url, img_link)
+        md = md.replace(x, repl_img_line)
+#        md = md.replace(img_url, img_link)
         
     # correct majority of the links
     try:
@@ -160,7 +171,7 @@ def main():
         .replace("zorkS", "<summary>")
     )
     try:
-        template_file = open("template.html", "r")
+        template_file = open("../html-support/templates"+html_template+"/template.html", "r")
         TEMPLATE = template_file.read()
     except:
         TEMPLATE = """<!DOCTYPE html>

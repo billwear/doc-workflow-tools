@@ -1,0 +1,91 @@
+#!/bin/bash
+
+mkdir -p $1/production-html-deb/cli/css
+mkdir -p $1/production-html-deb/cli/images
+mkdir -p $1/production-html-deb/ui/css
+mkdir -p $1/production-html-deb/ui/images
+mkdir -p $1/production-html-deb/css
+mkdir -p $1/production-html-deb/images
+mkdir -p $1/production-html-snap/cli/css
+mkdir -p $1/production-html-snap/cli/images
+mkdir -p $1/production-html-snap/ui/css
+mkdir -p $1/production-html-snap/ui/images
+mkdir -p $1/production-html-snap/css
+mkdir -p $1/production-html-snap/images
+radmakehtml about-controllers "About controllers" $1
+radmakehtml about-images "About images" $1
+radmakehtml about-maas "About MAAS" $1
+radmakehtml about-machines "About machines" $1
+radmakehtml about-networking "About networking" $1
+radmakehtml about-tags-and-annotations "About tags and annotations" $1
+radmakehtml about-vm-hosting "About VM hosting" $1
+radmakehtml api-authentication-reference "API authentication reference"  $1
+radmakehtml audit-event-log-reference "Audit event log reference" $1
+radmakehtml commissioning-log-reference "Commissioning log reference" $1
+radmakehtml commissioning-scripts-reference "Commissioning scripts reference" $1
+radmakehtml event-log-reference  "Event log reference" $1
+radmakehtml get-started-with-maas "Get started with MAAS" $1
+radmakehtml hardware-test-scripts-reference "Hardware test scripts reference" $1
+radmakehtml how-to-back-up-maas  "How to back up MAAS" $1
+radmakehtml how-to-build-maas-images "How to build MAAS images" $1
+radmakehtml how-to-contact-us "How to contact us" $1
+radmakehtml how-to-create-a-custom-ubuntu-image "How to create a custom Ubuntu image" $1
+radmakehtml how-to-create-static-ubuntu-images "How to create static Ubuntu images" $1
+radmakehtml how-to-customise-machines "How to customise machines" $1
+radmakehtml how-to-deploy-machines "How to deploy machines" $1
+radmakehtml how-to-enable-high-availability "How to enable high availability" $1
+radmakehtml how-to-enable-tls-encryption "How to enable TLS encryption" $1
+radmakehtml how-to-get-help "How to get help" $1
+radmakehtml how-to-help-improve-the-doc "How to help improve the documentation" $1
+radmakehtml how-to-import-images "How to import images" $1
+radmakehtml how-to-install-maas "How to install MAAS" $1
+radmakehtml how-to-manage-availability-zones "How to manage availability zones" $1
+radmakehtml how-to-manage-dhcp "How to manage DHCP" $1
+radmakehtml how-to-manage-ip-ranges "How to manage IP ranges" $1
+radmakehtml how-to-manage-machine-interfaces "How to manage machine interfaces" $1
+radmakehtml how-to-manage-machines "How to manage machines" $1
+radmakehtml how-to-manage-networks "How to manage networks" $1
+radmakehtml how-to-manage-partitions "How to manage partitions" $1
+radmakehtml how-to-manage-proxies "How to manage proxies" $1
+radmakehtml how-to-manage-racks "How to manage racks" $1
+radmakehtml how-to-manage-regions "How to manage regions" $1
+radmakehtml how-to-manage-tags "How to manage tags" $1
+radmakehtml how-to-manage-user-accounts "How to manage user accounts" $1
+radmakehtml how-to-manage-vm-hosts "How to manage VM hosts" $1
+radmakehtml how-to-manage-vms "How to manage VMs" $1
+radmakehtml how-to-manage-vmware-images "How to manage VMWare images" $1
+radmakehtml how-to-mirror-images-locally "How to mirror images locally" $1
+radmakehtml how-to-search-maas "How to search MAAS" $1
+radmakehtml how-to-secure-maas "How to secure MAAS" $1
+radmakehtml how-to-set-up-ntp "How to set up NTP" $1
+radmakehtml how-to-set-up-postgresql-ha-hot-standby "How to set up PostgreSQL HA hot standby"  $1
+radmakehtml how-to-set-up-prometheus-metrics "How to set up Prometheus metrics" $1
+radmakehtml how-to-troubleshoot-maas "How to troubleshoot MAAS" $1
+radmakehtml how-to-upgrade-maas "How to upgrade MAAS" $1
+radmakehtml how-to-use-controller-tags "How to use controller tags" $1
+radmakehtml how-to-use-image-streams "How to use image streams" $1
+radmakehtml how-to-use-lxd "How to use LXD" $1
+radmakehtml how-to-use-maas-in-an-air-gapped-environment "How to use MAAS in an air-gapped environment" $1
+radmakehtml how-to-use-machine-tags "How to use machine tags" $1
+radmakehtml how-to-use-network-tags "How to use network tags" $1
+radmakehtml how-to-use-storage-tags "How to use storage tags" $1
+radmakehtml how-to-use-the-maas-cli "How to use the MAAS CLI" $1
+radmakehtml maas-concepts-and-terms-reference "MAAS concepts and terms reference" $1
+radmakehtml maas-documentation "MAAS Documentation" $1
+radmakehtml maas-logging-reference "MAAS logging reference" $1
+radmakehtml power-management-reference "Power management reference" $1
+radmakehtml prometheus-metrics "Prometheus metrics" $1
+radmakehtml python-api-client-reference "Python API client reference" $1
+radmakehtml test-log-reference "Test log reference" $1
+radmakehtml tips-and-tricks "Tips and tricks" $1
+radmakehtml what-is-new-with-maas "What is new with MAAS" $1
+cp /tmp/images/* $1/production-html-deb/images
+cp /tmp/images/* $1/production-html-deb/cli/images
+cp /tmp/images/* $1/production-html-deb/ui/images
+cp /tmp/images/* $1/production-html-snap/images
+cp /tmp/images/* $1/production-html-snap/cli/images
+cp /tmp/images/* $1/production-html-snap/ui/images
+cd $1/production-html-deb/cli; sed -i -e "s/-[0-9]\{4\}.html/.html/g" *.html
+cd $1/production-html-deb/ui; sed -i -e "s/-[0-9]\{4\}.html/.html/g" *.html
+cd $1/production-html-snap/cli; sed -i -e "s/-[0-9]\{4\}.html/.html/g" *.html
+cd $1/production-html-snap/ui; sed -i -e "s/-[0-9]\{4\}.html/.html/g" *.html
