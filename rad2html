@@ -65,7 +65,7 @@ def main():
     if html_template == "":
         print("rad2html: no HTML template file path specified")
         usage()
-        
+
     # where do i get my input text?
     if input_file == "":
         md = sys.stdin.read()
@@ -170,8 +170,9 @@ def main():
         .replace("zorkD", "<details>")
         .replace("zorkS", "<summary>")
     )
+
     try:
-        template_file = open("../html-support/templates"+html_template+"/template.html", "r")
+        template_file = open(html_template, "r")
         TEMPLATE = template_file.read()
     except:
         TEMPLATE = """<!DOCTYPE html>

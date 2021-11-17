@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+#
+# discdel - delete a discourse topic
+#
+# req param: -t TOPIC_NUMBER to delete
+# opt param: -a AUTH_FILE w/API credentials
+# - looks for ~/.config/disc/
 
 # what libraries does this program need?
 import getopt, sys, errno, maas_discourse, json
