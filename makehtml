@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # parameter 1 - directory where HTML will be generated
 # parameter 2 - git repo directory to use to find CSS file
@@ -18,7 +18,13 @@ mkdir -p $1/production-html-snap/images
 radmakehtml about-controllers "About controllers" $1 $2
 radmakehtml about-images "About images" $1 $2
 radmakehtml about-maas "About MAAS" $1 $2
+sed -i -e 's/maas.io\/t\/running/morkoid/g' $2/src/about-machines.md
 radmakehtml about-machines "About machines" $1 $2
+sed -i -e 's/morkoid/maas.io\/t\/running/g' $2/src/about-machines.md
+sed -i -e 's/morkoid/maas.io\/t\/running/g' $1/production-html-deb/ui/about-machines.html
+sed -i -e 's/morkoid/maas.io\/t\/running/g' $1/production-html-deb/cli/about-machines.html
+sed -i -e 's/morkoid/maas.io\/t\/running/g' $1/production-hmtl-snap/ui/about-machines.html
+sed -i -e 's/morkoid/maas.io\/t\/running/g' $1/production-html-snap/cli/about-machines.html
 radmakehtml about-networking "About networking" $1 $2
 radmakehtml about-tags-and-annotations "About tags and annotations" $1 $2
 radmakehtml about-vm-hosting "About VM hosting" $1 $2
@@ -94,7 +100,7 @@ cp $2/html-support/css/stylesheet.css $1/production-html-deb/ui/css
 cp $2/html-support/css/stylesheet.css $1/production-html-snap/css
 cp $2/html-support/css/stylesheet.css $1/production-html-snap/cli/css
 cp $2/html-support/css/stylesheet.css $1/production-html-snap/ui/css
-cat $2/src/maas-documentation.md | sed '/^## Navigation/,$d' | rad2html -T $2/html-support/templates/template.html -t "MAAS Documentation" -f maas-documentation-25 > /tmp/maas-documentation-25.html
+cat $2/src/maas-documentation.md | sed '/^## Navigation/,$d'  | rad2html -T $2/html-support/templates/template.html -t "MAAS Documentation" -f maas-documentation-25 | sed -e 's/what-is-new-with-maas-5292/ui\/what-is-new-with-maas/g' | sed -e 's/get-started-with-maas-5092/ui\/get-started-with-maas/g' | sed -e 's/how-to-contact-us-5448/ui\/how-to-contact-us/g' | sed -e 's/how-to-help-improve-the-doc-5452/ui\/how-to-help-improve-the-doc/g' > /tmp/maas-documentation-25.html
 cp /tmp/maas-documentation-25.html $1/production-html-deb
 cp /tmp/maas-documentation-25.html $1/production-html-snap
 cat $2/src/maas-documentation.md | sed '/^## Navigation/,$d' | rad2html -T $2/html-support/templates/deb/3.1/cli/template.html -t "MAAS Documentation" -f maas-documentation-25 > /tmp/maas-documentation-25.html
