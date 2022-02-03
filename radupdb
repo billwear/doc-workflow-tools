@@ -9,7 +9,7 @@ from pathlib import Path
 
 ## usage message
 def usage():
-    print("usage: radRdbload -n INDEX_TOPIC_NUMBER [-d DB_FILE_NAME] [-a AUTH_FILE_NAME]")
+    print("usage: radupdb -n INDEX_TOPIC_NUMBER [-d DB_FILE_NAME] [-a AUTH_FILE_NAME]")
     sys.exit(errno.EINVAL)
     
 ## create the database connection
@@ -77,7 +77,7 @@ def main():
 
     ## set option values to recognizable blanks
     db_file = home + "/.config/rad/rad.db"
-    auth_file = "/etc/rad/dc.yaml"
+    auth_file = home + "/.config/rad/dc.yaml"
     index_topic_number = 0
     
     ## loop through the passed options
@@ -90,7 +90,7 @@ def main():
             index_topic_number = a
         else:
             assert False
-            
+
     ## validate the options
     if db_file == None:
         print("radupdb: no database file specified")
