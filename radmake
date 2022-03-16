@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 sqlite3 ~/.config/rad/rad.db 'select * from links' \
     | grep "/${1%%.*}|" \

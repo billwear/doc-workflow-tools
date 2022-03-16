@@ -33,7 +33,7 @@ def get_topic_number(conn, selector, url):
 
     # attempt to find the matching record in the RAD database
     cur = conn.cursor()
-    cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
+    flob = cur.execute("SELECT topic_number from links WHERE url='" + db_url + "'")
     topic_number = cur.fetchall()
 
     # try to clean up the topic number; error out if can't
@@ -95,21 +95,21 @@ for i in vlinks:
 
         # is the topic_part an "nnnn"?
         if topic_part == "nnnn":
-
+            
             # find the edges of the link
             where = document_markdown.find("nnnn", i) + 4
             if where == -1:
                 continue
-            
+
             # pull out the base url 
             base_url = document_markdown[i:where].split("/")[-2]
-            
+
             # find the topic number
             topic_number = get_topic_number(conn, selector, base_url)
             
             # form up the replacement link
             repl_link = "/t/" + base_url + "/" + str(topic_number)
-            
+
             # form up the original link
             orig_link = document_markdown[i:where]
             
