@@ -85,24 +85,23 @@ def get_post(config_data, post_id):
             return post_json
 
 def print_usage():
-    print("usage: dpull -n topic_number -c /path/to/discourse/config-file")
+    print("usage: dpull -n topic_number")
 
-if len(sys.argv) != 5:
+if len(sys.argv) != 3:
     print_usage()
     sys.exit()
 
-if sys.argv[1] != "-n" or sys.argv[3] != "-c":
+if sys.argv[1] != "-n":
     print_usage()
     sys.exit()
     
 topic_number = sys.argv[2]
-path_to_config = sys.argv[4]
 
 # read config file to get api-key, api-usr, and discourse url
 try:
-    cfile = open(path_to_config, "r")
+    cfile = open("/home/stormrider/.config/rad/dc.yaml", "r")
 except:
-    print('dpull: cannot open', path_to_config)
+    print("dpull: cannot open configuration file")
     print("dpull: exiting")
     sys.exit(4)
 config_data = load(cfile, Loader=Loader)

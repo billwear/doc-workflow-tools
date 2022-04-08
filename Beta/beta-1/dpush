@@ -101,7 +101,7 @@ topic_number = sys.argv[2]
 
 # read config file to get api-key, api-usr, and discourse url
 try:
-    cfile = open("/etc/rad/dc.yaml", "r")
+    cfile = open("/home/stormrider/.config/rad/dc.yaml", "r")
 except:
     print('dpush: cannot open', path_to_config)
     print("dpush: exiting")
@@ -167,6 +167,8 @@ response = subprocess.check_output(
         "@foo.json",
     ]
 )
+
+print("ran the curl command")
 
 # remove the temporary json file
 os.remove("foo.json")
