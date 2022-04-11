@@ -1,55 +1,60 @@
 #!/usr/bin/python3
 
-import argparse, logging, markdown, os, re, requests, shutil
+import argparse, jinja2, logging, markdown, os, re, requests, shutil
 import subprocess, sys
 
-logging.basicConfig(filename='/tmp/tab2html.log',level=logging.DEBUG)
-logging.basicConfig(format='%(asctime)s %(message)s')
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", type=str, default="stdin",
-                   help="input discourse markdown filename (defaults to stdin)")
-parser.add_argument("-o", "--output", type=str, default="stdout",
-                   help="output html filename (defaults to stdout)")
-parser.add_argument("-s", "--skipimages", type=int, default=0,
-                    choices=[0,1],
-                    help="do not process images on this run")
-parser.add_argument("version", type=str, choices=["2.9","3.0","3.1","3.2"],
-                    help="MAAS version number to include")
-parser.add_argument("packaging", type=str, choices=["snap","deb"],
-                    help="MAAS packaging type to include")
-parser.add_argument("view", type=str, choices=["ui","cli"],
-                    help="interface type to include")
+parser = argparse.ArgumentParser(
+    description="convert discourse RAD parser document to HTML",
+    epilog="--------")
+parser.add_argument("-i", type=str, default="stdin",metavar="MD_FILENAME",
+                   help="input markdown filename (default: stdin)")
+parser.add_argument("-o", type=str, default="stdout", metavar="HTML_FILENAME",
+                   help="output html filename (default: stdout)")
+parser.add_argument("-t", type=str, metavar="TMPL_FILENAME",
+                    help="output html template filename")
+parser.add_argument("-l", action="count", help="increase log levels")
+parser.add_argument("-L", type=str, default="/tmp/tab2html.log",
+                    metavar="LOG_FILENAME",
+                    help="log filename (default: /tmp/tab2html.log)")
+parser.add_argument("-s", action='store_true',
+                    help="do not process images")
+parser.add_argument("version", type=str, 
+                    help="version to include (must match tab value & case)")
+parser.add_argument("view", type=str, 
+                    help="view to include (must match tab value & case)")
 parser.add_argument("title", type=str,
-                    help="title of html document (enclosed in quotes)")
+                    help="title of html document (quoted)")
 args = parser.parse_args()
 
+loglevel = logging.WARNING
+if args.l == 1:
+    loglevel = logging.INFO
+elif args.l == 2:
+    loglevel = logging.WARNING
+elif args.l == 3:
+    loglevel = logging.ERROR
+elif args.l == 4:
+    loglevel = logging.CRITICAL
+elif args.l == 5:
+    loglevel = logging.DEBUG
+
+logging.basicConfig(filename=args.L,level=loglevel)
+logging.basicConfig(format='%(asctime)s %(message)s')
+
 logging.info('\n-------------- new run started -----------------')
-logging.info('input file: %s', args.input)
-logging.info('output file: %s', args.output)
-
-version = "v" + args.version
-if args.packaging == "snap":
-    packaging = "Snap"
-elif args.packaging == "deb":
-    packaging = "Packages"
-if args.view == "ui":
-    view = "view=\"UI\""
-elif args.view == "cli":
-    view = "view=\"CLI\""
-
-vstring = version + " " + packaging 
+logging.info('input file: %s', args.i)
+logging.info('output file: %s', args.o)
 
 logging.info('attempting to read input file')
-if args.input == "stdin":
+if args.i == "stdin":
     inbuf = sys.stdin.read()
 else:
     try:
-        mdfile = open(args.input, "r")
+        mdfile = open(args.i, "r")
     except:
         logging.warning('could not open input file %s: aborting',
-                        args.input)
-        print('could not open input file',args.input,': aboring')
+                        args.i)
+        print('could not open input file',args.i,': aboring')
         sys.exit(-1)
     inbuf = mdfile.read()
     mdfile.close()
@@ -65,16 +70,16 @@ for x in blobs:
     logging.debug('processing blob:\n' + x + "\n")
     if x.startswith("version="):
         logging.debug('  blob starts with \"version=\"')
-        if x.find(vstring):
-            logging.debug('  blob matches version string ' + vstring)
+        if x.find(args.version) > 0:
+            logging.debug('  blob matches version string ' + args.version)
             if x.find("view=") < 0:
                 logging.debug('  blob has no view string')
                 outbuf += x.split("]",1)[1]
-            elif x.find(view) > 0:
-                logging.debug('  blob view string matches ' + view)
+            elif x.find(args.view) > 0:
+                logging.debug('  blob view string matches ' + args.view)
                 outbuf += x.split("]",1)[1]
             else:
-                logging.debug('  blob view string does not match ' + view)
+                logging.debug('  blob view string does not match ' + args.view)
                 continue
     else:
         outbuf += x
@@ -175,8 +180,30 @@ html = (
     .replace("zorkS", "<summary>")
 )
 
-# add an html navigation menu to the file 
+logging.info('attempting to open template file')
+try:
+    template_file = open(args.t, "r")
+    TEMPLATE = template_file.read()
+except:
+    TEMPLATE = """<!DOCTYPE html>
+    <html>
+    <body>
+    <div class="container">
+    {{content}}
+    </div>
+    </body>
+    </html>
+    """
 
-print(html)
+logging.info('rendering jinja template')
+doc = jinja2.Template(TEMPLATE).render(content=html)
+
+logging.info('attempting to create output file')
+if args.o == "stdout":
+    sys.stdout.write(doc)
+else:
+    htmlf = open(args.o, "w")
+    htmlf.write(doc)
+    htmlf.close()
     
 

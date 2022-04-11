@@ -173,7 +173,7 @@ def main():
         .replace("zorkS", "<summary>")
     )
 
-    try:
+   try:
         template_file = open(html_template, "r")
         TEMPLATE = template_file.read()
     except:
