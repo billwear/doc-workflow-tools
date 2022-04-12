@@ -119,7 +119,7 @@ sed -i -e"$sedcmd" $STAGE/production-html-deb/cli/$HTMLNAME
 cp /tmp/images/* $STAGE/production-html-deb/cli/images
 
 # ask whether to make these changes permanent
-read -e -p "Upload changes to discourse & git repo? [Y/n] " YN
+read -e -p "Upload changes to discourse & HTML docs? [Y/n] " YN
 
 # if no, just exit, we're done here for now
 [[ $YN == "n" || $YN == "N" || $YN == "" ]] && exit
@@ -151,7 +151,23 @@ tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $G
 sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME
 cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/cli/images
 
+# ask whether to automatically update the git repo
+read -e -p "Stage all changes and commit/push git repo? [Y/n] " YN
+
+# if no, just exit, we're done here for now
+[[ $YN == "n" || $YN == "N" || $YN == "" ]] && exit
+
+# change to the root of the git repo
 cd $GIT_REPO_ROOT
+
+# stage everything (you may not want to do this every time)
 git add .
-git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME" -m " - includes merge of any recent edits to discourse versions" -m " - git updated by disced e2e editing script"
+
+# get a specific commit message for this change
+read -e -p "Specific commit message (1 line)? " GIT_COMMIT_MESSAGE
+
+# commit the changes
+git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME as follows:" -m " - $GIT_COMMIT_MESSAGE" -m " - includes merge of any recent edits to discourse versions" -m " - git updated by disced e2e editing script"
+
+# push the changes upstream
 git push
