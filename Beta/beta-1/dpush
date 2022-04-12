@@ -130,10 +130,7 @@ category = topic_json["category_id"]
 file_contents = file_contents.ljust(9000)
 
 # create a dictionary buffer for the markdown
-data = {}
-
-# place the markdown in the appropriate json keys
-data["raw"] = file_contents
+data = {'locked': 'True'}
 
 # open a temporary json file to store the markdown as json
 f = open("foo.json", "w")
