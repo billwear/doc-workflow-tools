@@ -1,0 +1,20 @@
+#!/bin/bash -x
+DOCNAME=$1
+VERSION=$2
+
+read firstline<"./src/"$DOCNAME
+TITLE=$(sed -e's/^[^"]*\"\([^"]*\).*$/\1/g' <<< $firstline)
+
+LOG="/tmp/tab2html.log"
+
+NAME=$(echo "$DOCNAME" | cut -f 1 -d '.')
+LEN=${#name}
+POSN="$(($LEN - 4))"
+POS="$(($POSN - 0))"
+TOPICNO=${NAME:$POS}
+HTMLNAME=${NAME:0:$((POS-1))}".html"
+cat ./src/$DOCNAME | dpush -n $TOPICNO
+tab2html "v$VERSION Snap" "UI" "$TITLE" -i ./src/$DOCNAME -l -L $LOG -o ./production-html-snap/ui/$HTMLNAME -t ./html-support/templates/3.2/snap/ui/template.html
+tab2html "v$VERSION Packages" "UI" "$TITLE" -i ./src/$DOCNAME -l -L $LOG -o ./production-html-deb/ui/$HTMLNAME -t ./html-support/templates/3.2/deb/ui/template.html
+tab2html "v$VERSION Snap" "CLI" "$TITLE" -i ./src/$DOCNAME -l -L $LOG -o ./production-html-snap/cli/$HTMLNAME -t ./html-support/templates/3.2/snap/cli/template.html
+tab2html "v$VERSION Packages" "CLI" "$TITLE" -i ./src/$DOCNAME -l -L $LOG -o ./production-html-deb/cli/$HTMLNAME -t ./html-support/templates/3.2/snap/cli/template.html

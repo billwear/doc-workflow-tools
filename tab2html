@@ -86,21 +86,14 @@ for x in blobs:
 md = outbuf
 
 logging.info('attempting to create temp image storage dir /tmp/images')
-if os.path.isdir("/tmp/images"):
-    logging.info('/tmp/images exists: removing')
+if not os.path.isdir("/tmp/images"):
     try:
-        shutil.rmtree("/tmp/images")
+        os.mkdir("/tmp/images")
+        logging.info('successfully created /tmp/images')
     except:
-        logging.warn('could not remove existing /tmp/images: aborting')
-        print('could not remove existing /tmp/images: aborting')
-        sys.exit(-2)
-try:
-    os.mkdir("/tmp/images")
-except:
-    logging.warn('could not create /tmp/images: aborting')
-    print('could not create /tmp/images: aborting')
-    sys.exit(-3)
-logging.info('successfully created /tmp/images')
+        logging.warn('could not create /tmp/images: aborting')
+        print('could not create /tmp/images: aborting')
+        sys.exit(-3)
 
 match2 = re.findall(r'<a href="[^>]*><img src="[^ ]*">', md)
 imagelines = match2
@@ -111,7 +104,7 @@ for x in imagelines:
     img_fnam = "/tmp/images/" + str(img_url).split("/")[-1].split(")")[0].split("'")[0]
     img_link = "images/" + x.split("/")[-1].split(")")[0].split('"')[0]
 
-    if args.skipimages == False:
+    if args.s == False:
         logging.info('copying %s to /tmp/images', img_fnam)
         r = requests.get(img_url, stream=True)
         r.raw.decode_content = True
