@@ -1,0 +1,157 @@
+#!/bin/bash
+# $1 = git master markdown filename, absolute path
+
+# workbench dir
+BENCH="/tmp/bench"
+
+# staging directory, if we get that far
+STAGE="/tmp/staging"
+
+# conversion logging directory, if we get that far
+LOG="$STAGE/log/tab2html.log"
+
+# master markdown absolute pathname
+GIT_MD_ABSPATH=$1
+
+# path to master markdown
+GIT_MD_DIR="$(dirname "${1}")"
+
+# compute path git repo root, for production html, if we get that far
+GIT_REPO_ROOT="$GIT_MD_DIR/.."
+
+# get base filename
+GIT_MD_BASENAME="$(basename "${1}")"
+
+# peel topic number out of basename
+NAME=$(echo "$GIT_MD_BASENAME" | cut -f 1 -d '.')
+LEN=${#NAME}
+POSN="$(($LEN - 4))"
+POS="$(($POSN - 0))"
+TOPIC_NUMBER=${NAME:$POS}
+
+# compute name of html file
+HTMLNAME=${NAME:0:$((POS-1))}".html"
+
+# sed command to allow UI/CLI iso-page switching
+sedcmd="s/zork/$HTMLNAME/g"
+
+# compute name of file pulled from disc
+DISCNAM=$NAME".discmd"
+
+# create workbench dir
+mkdir -p $BENCH
+
+# clear the workbench
+rm -rf $BENCH/*
+
+## future step: lock post from editing
+
+# pull the topic from disc to bench
+dpull -n $TOPIC_NUMBER > $BENCH/$DISCNAM
+
+# pull the master from git to bench
+cp $GIT_MD_ABSPATH $BENCH/
+
+# store the diff in a findable file
+diff $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME > $BENCH/md-diff
+
+# open the text editor of your choice with whatever parameters you prefer
+## the point is to temporarily limit focus to the doc being edited atm
+## (how you option / configure this is up to you)
+emacs -q -l .emacs2 $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME $BENCH/md-diff
+
+# ask whether to stage the changes (n aborts without changing anything)
+read -e -p "Stage changes for review? [Y/n] " YN
+
+# if no, just exit, we're done here for now
+[[ $YN == "n" || $YN == "N" || $YN == "" ]] && exit
+
+## if yes, push changes to staging so they can be checked before final commit
+
+# get the document's title, for HTML purposes (stored in comment, first line)
+read firstline<$BENCH/$GIT_MD_BASENAME
+TITLE=$(sed -e's/^[^"]*\"\([^"]*\).*$/\1/g' <<< $firstline)
+
+# provisionally create staging directory in /tmp
+mkdir -p $STAGE
+mkdir -p $STAGE/markdown
+mkdir -p $STAGE/log
+mkdir -p $STAGE/production-html-deb/cli/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/cli/css
+mkdir -p $STAGE/production-html-deb/cli/images
+mkdir -p $STAGE/production-html-deb/ui/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/ui/css
+mkdir -p $STAGE/production-html-deb/ui/images
+mkdir -p $STAGE/production-html-deb/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/css
+mkdir -p $STAGE/production-html-deb/images
+mkdir -p $STAGE/production-html-snap/cli/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/cli/css
+mkdir -p $STAGE/production-html-snap/cli/images
+mkdir -p $STAGE/production-html-snap/ui/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/ui/css
+mkdir -p $STAGE/production-html-snap/ui/images
+mkdir -p $STAGE/production-html-snap/css
+cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/css
+mkdir -p $STAGE/production-html-snap/images
+
+# capture the markdown so that we can galley it before final commit
+cat $BENCH/$GIT_MD_BASENAME > $STAGE/markdown/$GIT_MD_BASENAME
+
+# run the snap ui version of the html
+tab2html "v$VERSION Snap" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
+sed -i -e"$sedcmd" $STAGE/production-html-snap/ui/$HTMLNAME
+cp /tmp/images/* $STAGE/production-html-snap/ui/images
+
+# run the deb ui version of the html
+tab2html "v$VERSION Packages" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-deb/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/deb/ui/template.html
+sed -i -e"$sedcmd" $STAGE/production-html-deb/ui/$HTMLNAME
+cp /tmp/images/* $STAGE/production-html-deb/ui/images
+
+# run the snap cli version of the html
+tab2html "v$VERSION Snap" "CLI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-snap/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $STAGE/production-html-snap/cli/$HTMLNAME
+cp /tmp/images/* $STAGE/production-html-snap/cli/images
+
+# run the deb cli version of the html
+tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-deb/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $STAGE/production-html-deb/cli/$HTMLNAME
+cp /tmp/images/* $STAGE/production-html-deb/cli/images
+
+# ask whether to make these changes permanent
+read -e -p "Upload changes to discourse & git repo? [Y/n] " YN
+
+# if no, just exit, we're done here for now
+[[ $YN == "n" || $YN == "N" || $YN == "" ]] && exit
+
+## if yes, push changes for real
+# copy the (potentially edited) discourse markdown back to the git repo
+cp $BENCH/$GIT_MD_BASENAME $GIT_MD_ABSPATH
+
+# push the discourse markdown up to the docs discourse
+cat $GIT_MD_ABSPATH | dpush -n $TOPIC_NUMBER
+
+# run the snap ui version of the html to production
+tab2html "v$VERSION Snap" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/ui/images
+
+# run the deb ui version of the html
+tab2html "v$VERSION Packages" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/deb/ui/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/ui/images
+
+# run the snap cli version of the html
+tab2html "v$VERSION Snap" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/cli/images
+
+# run the deb cli version of the html
+tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/cli/images
+
+cd $GIT_REPO_ROOT
+git add .
+git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME" -m " - includes merge of any recent edits to discourse versions" -m " - git updated by disced e2e editing script"
+git push
