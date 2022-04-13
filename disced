@@ -7,6 +7,9 @@ BENCH="/tmp/bench"
 # staging directory, if we get that far
 STAGE="/tmp/staging"
 
+# staging topic number (galley proof topic, etc)
+GALLEY="4917"
+
 # conversion logging directory, if we get that far
 LOG="$STAGE/log/tab2html.log"
 
@@ -58,7 +61,7 @@ diff $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME > $BENCH/md-diff
 # open the text editor of your choice with whatever parameters you prefer
 ## the point is to temporarily limit focus to the doc being edited atm
 ## (how you option / configure this is up to you)
-emacs -q -l .emacs2 $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME $BENCH/md-diff
+emacs -q -l /home/stormrider/.emacs2 $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME $BENCH/md-diff
 
 # ask whether to stage the changes (n aborts without changing anything)
 read -e -p "Stage changes for review? [Y/n] " YN
@@ -97,26 +100,33 @@ mkdir -p $STAGE/production-html-snap/images
 
 # capture the markdown so that we can galley it before final commit
 cat $BENCH/$GIT_MD_BASENAME > $STAGE/markdown/$GIT_MD_BASENAME
+cat $BENCH/$GIT_MD_BASENAME | dpush -n $GALLEY
+
+echo "markdown source at file:///$STAGE/markdown/$GIT_MD_BASENAME"
 
 # run the snap ui version of the html
 tab2html "v$VERSION Snap" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
 sed -i -e"$sedcmd" $STAGE/production-html-snap/ui/$HTMLNAME
 cp /tmp/images/* $STAGE/production-html-snap/ui/images
+echo "SNAP UI HTML at file:///$STAGE/production-html-snap/ui/$HTMLNAME"
 
 # run the deb ui version of the html
 tab2html "v$VERSION Packages" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-deb/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/deb/ui/template.html
 sed -i -e"$sedcmd" $STAGE/production-html-deb/ui/$HTMLNAME
 cp /tmp/images/* $STAGE/production-html-deb/ui/images
+echo "DEB UI HTML at file:///$STAGE/production-html-deb/ui/$HTMLNAME"
 
 # run the snap cli version of the html
 tab2html "v$VERSION Snap" "CLI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-snap/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
 sed -i -e"$sedcmd" $STAGE/production-html-snap/cli/$HTMLNAME
 cp /tmp/images/* $STAGE/production-html-snap/cli/images
+echo "SNAP CLI HTML at file:///$STAGE/production-html-snap/cli/$HTMLNAME"
 
 # run the deb cli version of the html
 tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-deb/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
 sed -i -e"$sedcmd" $STAGE/production-html-deb/cli/$HTMLNAME
 cp /tmp/images/* $STAGE/production-html-deb/cli/images
+echo "DEB CLI HTML at file:///$STAGE/production-html-deb/cli/$HTMLNAME"
 
 # ask whether to make these changes permanent
 read -e -p "Upload changes to discourse & HTML docs? [Y/n] " YN
