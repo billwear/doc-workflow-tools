@@ -38,8 +38,7 @@ elif args.l == 4:
 elif args.l == 5:
     loglevel = logging.DEBUG
 
-logging.basicConfig(filename=args.L,level=loglevel)
-logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(filename=args.L,level=loglevel,format='%(asctime)s %(levelname)s %(message)s')
 
 logging.info('\n-------------- new run started -----------------')
 logging.info('input file: %s', args.i)
@@ -102,7 +101,7 @@ logging.info('processing images linked in the input file')
 for x in imagelines:
     img_url = str(re.findall(r'<img src="([^ ]*)">',x)).split("'")[1]
     img_fnam = "/tmp/images/" + str(img_url).split("/")[-1].split(")")[0].split("'")[0]
-    img_link = "images/" + x.split("/")[-1].split(")")[0].split('"')[0]
+    img_link = "../images/" + x.split("/")[-1].split(")")[0].split('"')[0]
 
     if args.s == False:
         logging.info('copying %s to /tmp/images', img_fnam)
