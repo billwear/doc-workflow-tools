@@ -150,6 +150,14 @@ try:
 except:
     logging.info('no interdocument links found')
 
+logging.info('attempting to convert [note][/note] entries')
+try:
+    md = re.sub(r"\[note\]", r"**NOTE:** ", md)
+    md = re.sub(r"\[/note\]", r" ", md)
+    logging.info('[note][/note] entries converted')
+except:
+    logging.info('no note entries found')
+    
 logging.info('temporarily commenting out <detail> sections')
 logging.info('  (do not process correctly on markdown conversion)')
 md = (

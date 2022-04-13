@@ -140,25 +140,30 @@ cp $BENCH/$GIT_MD_BASENAME $GIT_MD_ABSPATH
 # push the discourse markdown up to the docs discourse
 cat $GIT_MD_ABSPATH | dpush -n $TOPIC_NUMBER
 
+## IMPORTANT NOTE ##############################################################
+# if you enter the script at this point, you may not have images in the
+# production HTML directories, as these images are only generated during staging
+################################################################################
+
 # run the snap ui version of the html to production
 tab2html "v$VERSION Snap" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
 sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME
-cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/ui/images
 
 # run the deb ui version of the html
 tab2html "v$VERSION Packages" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/deb/ui/template.html
 sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME
-cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/ui/images
 
 # run the snap cli version of the html
 tab2html "v$VERSION Snap" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
 sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME
-cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/cli/images
 
 # run the deb cli version of the html
 tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
 sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME
-cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/cli/images
+
+# copy images to production HTML root
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/images
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/images
 
 # ask whether to automatically update the git repo
 read -e -p "Stage all changes and commit/push git repo? [Y/n] " YN
