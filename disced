@@ -30,13 +30,10 @@ GIT_MD_BASENAME="$(basename "${1}")"
 
 # peel topic number out of basename
 NAME=$(echo "$GIT_MD_BASENAME" | cut -f 1 -d '.')
-LEN=${#NAME}
-POSN="$(($LEN - 4))"
-POS="$(($POSN - 0))"
-TOPIC_NUMBER=${NAME:$POS}
+TOPIC_NUMBER=$(echo "$NAME" | rev | cut -f 1 -d'-' | rev)
 
 # compute name of html file
-HTMLNAME=${NAME:0:$((POS-1))}".html"
+HTMLNAME=$(echo "$NAME" | rev | cut -f 2- -d'-' | rev)".html"
 
 # sed command to allow UI/CLI iso-page switching
 sedcmd="s/zork/$HTMLNAME/g"

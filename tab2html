@@ -55,10 +55,23 @@ else:
                         args.i)
         print('could not open input file',args.i,': aboring')
         sys.exit(-1)
-    inbuf = mdfile.read()
+    rawinbuf = mdfile.read()
     mdfile.close()
 
 logging.info('successfully read input file')
+
+logging.info('removing any sections marked as not for html processing')
+inbuf = ""
+liveblobs = re.split('<!-- nohtml',rawinbuf)
+for x in liveblobs:
+    logging.debug('processing live blog:\n' + x + "\n")
+    if x.find("begin-nohtml") > 0:
+        logging.debug('   live blob is not for html processing')
+        continue
+    elif x.find("end-nohtml") > 0:
+        inbuf += x.split(">")[1]
+    else:
+        inbuf += x
 
 logging.info('splitting file into blobs')
 blobs = re.split('\[[/]*tab[s\] ]*',inbuf)
