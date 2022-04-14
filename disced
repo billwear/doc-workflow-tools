@@ -56,7 +56,7 @@ dpull -n $TOPIC_NUMBER > $BENCH/$DISCNAM
 cp $GIT_MD_ABSPATH $BENCH/
 
 # copy the current discourse version into the git repo
-cp $BENCH/$DISCNAM $GIT_REPO_ROOT/$GIT_MD_BASENAME
+cp $BENCH/$DISCNAM $GIT_REPO_ROOT/src/$GIT_MD_BASENAME
 
 # change to the root of the git repo
 cd $GIT_REPO_ROOT
