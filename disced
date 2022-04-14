@@ -55,6 +55,21 @@ dpull -n $TOPIC_NUMBER > $BENCH/$DISCNAM
 # pull the master from git to bench
 cp $GIT_MD_ABSPATH $BENCH/
 
+# copy the current discourse version into the git repo
+cp $BENCH/$DISCNAM $GIT_REPO_ROOT/$GIT_MD_BASENAME
+
+# change to the root of the git repo
+cd $GIT_REPO_ROOT
+
+# stage everything (you may not want to do this every time)
+git add .
+
+# commit the changes
+git commit -m "Updated $GIT_MD_BASENAME to current discourse version"
+
+# push the changes upstream
+git push
+
 # store the diff in a findable file
 diff $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME > $BENCH/md-diff
 
@@ -178,7 +193,7 @@ git add .
 read -e -p "Specific commit message (1 line)? " GIT_COMMIT_MESSAGE
 
 # commit the changes
-git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME as follows:" -m " - $GIT_COMMIT_MESSAGE" -m " - includes merge of any recent edits to discourse versions" -m " - git updated by disced e2e editing script"
+git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME as follows:" -m " - $GIT_COMMIT_MESSAGE"
 
 # push the changes upstream
 git push
