@@ -91,27 +91,19 @@ read firstline<$BENCH/$GIT_MD_BASENAME
 TITLE=$(sed -e's/^[^"]*\"\([^"]*\).*$/\1/g' <<< $firstline)
 
 # provisionally create staging directory in /tmp
-mkdir -p $STAGE
-mkdir -p $STAGE/markdown
-mkdir -p $STAGE/log
-mkdir -p $STAGE/production-html-deb/cli/css
+mkdir -p $STAGE/{log,markdown}
+mkdir -p $STAGE/production-html-{deb,snap}/{cli,ui}/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/cli/css
-mkdir -p $STAGE/production-html-deb/ui/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/ui/css
-mkdir -p $STAGE/production-html-deb/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-deb/css
 mkdir -p $STAGE/production-html-deb/images
-mkdir -p $STAGE/production-html-snap/cli/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/cli/css
-mkdir -p $STAGE/production-html-snap/ui/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/ui/css
-mkdir -p $STAGE/production-html-snap/css
 cp $GIT_REPO_ROOT/html-support/css/stylesheet.css $STAGE/production-html-snap/css
 mkdir -p $STAGE/production-html-snap/images
 
 # capture the markdown so that we can galley it before final commit
-cat $BENCH/$GIT_MD_BASENAME > $STAGE/markdown/$GIT_MD_BASENAME
-cat $BENCH/$GIT_MD_BASENAME | dpush -n $GALLEY
+cat $BENCH/$GIT_MD_BASENAME | tee $STAGE/markdown/$GIT_MD_BASENAME | dpush -n $GALLEY
 
 echo "markdown source at file:///$STAGE/markdown/$GIT_MD_BASENAME"
 
@@ -193,7 +185,7 @@ git add .
 read -e -p "Specific commit message (1 line)? " GIT_COMMIT_MESSAGE
 
 # commit the changes
-git commit -m "Updated $GIT_MD_BASENAME and $HTMLNAME as follows:" -m " - $GIT_COMMIT_MESSAGE"
+git commit -m "[$HTMLNAME] $GIT_COMMIT_MESSAGE"
 
 # push the changes upstream
 git push
