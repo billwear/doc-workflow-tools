@@ -64,7 +64,7 @@ logging.info('removing any sections marked as not for html processing')
 inbuf = ""
 liveblobs = re.split('<!-- nohtml',rawinbuf)
 for x in liveblobs:
-    logging.debug('processing live blog:\n' + x + "\n")
+    logging.debug('processing live blob:\n' + x + "\n")
     if x.find("begin-nohtml") > 0:
         logging.debug('   live blob is not for html processing')
         continue
@@ -92,6 +92,7 @@ for x in blobs:
                 outbuf += x.split("]",1)[1]
             else:
                 logging.debug('  blob view string does not match ' + args.view)
+                ('  blob view string does not match ' + args.view)
                 continue
     else:
         outbuf += x
@@ -191,6 +192,7 @@ html = (
     .replace("zorkSC", "</summary>")
     .replace("zorkD", "<details>")
     .replace("zorkS", "<summary>")
+    .replace("<ul>","<ul style=\"margin-left:4px; list-style-type:disc;\">")
 )
 
 logging.info('attempting to open template file')

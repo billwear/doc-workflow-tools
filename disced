@@ -108,7 +108,7 @@ cat $BENCH/$GIT_MD_BASENAME | tee $STAGE/markdown/$GIT_MD_BASENAME | dpush -n $G
 echo "markdown source at file:///$STAGE/markdown/$GIT_MD_BASENAME"
 
 # run the snap ui version of the html
-tab2html "v$VERSION Snap" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -l -L $LOG -o $STAGE/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
+tab2html "v$VERSION Snap" "UI" "$TITLE" -i $BENCH/$GIT_MD_BASENAME -lllll -L $LOG -o $STAGE/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
 sed -i -e"$sedcmd" $STAGE/production-html-snap/ui/$HTMLNAME
 echo "SNAP UI HTML at file:///$STAGE/production-html-snap/ui/$HTMLNAME"
 

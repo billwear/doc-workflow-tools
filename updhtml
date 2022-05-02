@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# MAAS version desired
+VERSION="3.2"
+
+# master markdown absolute pathname
+GIT_MD_ABSPATH=$1
+
+# path to master markdown
+GIT_MD_DIR="$(dirname "${1}")"
+
+# conversion logging directory, if we get that far
+LOG="/tmp/tab2html.log"
+
+# compute path git repo root, for production html, if we get that far
+GIT_REPO_ROOT="$GIT_MD_DIR/.."
+
+# compute path git repo root, for production html, if we get that far
+GIT_REPO_ROOT="$GIT_MD_DIR/.."
+
+# get base filename
+GIT_MD_BASENAME="$(basename "${1}")"
+
+# peel topic number out of basename
+NAME=$(echo "$GIT_MD_BASENAME" | cut -f 1 -d '.')
+TOPIC_NUMBER=$(echo "$NAME" | rev | cut -f 1 -d'-' | rev)
+
+# compute name of html file
+HTMLNAME=$(echo "$NAME" | rev | cut -f 2- -d'-' | rev)".html"
+
+# sed command to allow UI/CLI iso-page switching
+sedcmd="s/zork/$HTMLNAME/g"
+
+# get the document's title, for HTML purposes (stored in comment, first line)
+read firstline<$GIT_MD_ABSPATH
+TITLE=$(sed -e's/^[^"]*\"\([^"]*\).*$/\1/g' <<< $firstline)
+
+# run the snap ui version of the html to production
+tab2html "v$VERSION Snap" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/ui/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/ui/$HTMLNAME
+
+# run the deb ui version of the html
+tab2html "v$VERSION Packages" "UI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/deb/ui/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/ui/$HTMLNAME
+
+# run the snap cli version of the html
+tab2html "v$VERSION Snap" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-snap/cli/$HTMLNAME
+
+# run the deb cli version of the html
+tab2html "v$VERSION Packages" "CLI" "$TITLE" -i $GIT_MD_ABSPATH -l -L $LOG -o $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME -t $GIT_REPO_ROOT/html-support/templates/3.2/snap/cli/template.html
+sed -i -e"$sedcmd" $GIT_REPO_ROOT/production-html-deb/cli/$HTMLNAME
+
+# copy images to production HTML root
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-snap/images
+cp /tmp/images/* $GIT_REPO_ROOT/production-html-deb/images
+
