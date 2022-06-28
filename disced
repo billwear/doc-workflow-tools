@@ -2,7 +2,7 @@
 # $1 = git master markdown filename, absolute path
 
 # MAAS version desired
-VERSION="3.2"
+VERSION="main"
 
 # workbench dir
 BENCH="/tmp/bench"
@@ -68,6 +68,10 @@ git add .
 git commit -m "Updated $GIT_MD_BASENAME to current discourse version"
 
 # push the changes upstream
+## this incantation for when there are two active branches (release + master)
+#git push origin HEAD:master
+#git push origin HEAD
+## this incantation for normal operation mode (just updating master)
 git push
 
 # store the diff in a findable file
@@ -188,4 +192,8 @@ read -e -p "Specific commit message (1 line)? " GIT_COMMIT_MESSAGE
 git commit -m "[$HTMLNAME] $GIT_COMMIT_MESSAGE"
 
 # push the changes upstream
+## this incantation for when there are two active branches (release + master)
+# git push origin HEAD:master
+# git push origin HEAD
+## this incantation for normal operation mode (just updating master)
 git push

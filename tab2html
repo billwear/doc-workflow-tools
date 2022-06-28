@@ -2,6 +2,7 @@
 
 import argparse, jinja2, logging, markdown, os, re, requests, shutil
 import subprocess, sys
+from os.path import exists
 
 parser = argparse.ArgumentParser(
     description="convert discourse RAD parser document to HTML",
@@ -117,7 +118,8 @@ for x in imagelines:
     img_fnam = "/tmp/images/" + str(img_url).split("/")[-1].split(")")[0].split("'")[0]
     img_link = "../images/" + x.split("/")[-1].split(")")[0].split('"')[0]
 
-    if args.s == False:
+    if args.s == False and not exists(img_fnam):
+        print(img_fnam)
         logging.info('copying %s to /tmp/images', img_fnam)
         r = requests.get(img_url, stream=True)
         r.raw.decode_content = True
