@@ -1,9 +1,20 @@
 #!/usr/bin/python3
+#+AUTHOR: billwear, stormrider, WA5149
+#+TITLE: mkidx
+#+DATE: created 2022-07-07
+#+DESCRIPTION:
+# reads a Discourse markdown file specified on the command line,
+# builds a linked permuted index of all headings in the file,
+# and outputs said index in markdown table format to stdout.
+# NOTE: reads from a file, only, because filename is needed for links.
+# NOTE: outputs to stdout only, because multiple markdowns make one index.
+# NOTE: eliminates any duplicate entries as the last step.
+# NOTE: does not sort; multiple markdowns >> one file, manual sort later.
 
 import argparse, logging, sys, re
 
 parser = argparse.ArgumentParser(
-    description="build heading index from .md file and add to output file",
+    description="build permuted heading index from .md file & send to stdout",
     epilog="---------")
 parser.add_argument("-i", type=str, metavar="MD_FILENAME",
 		    help="input markdown filename (default: stdin)")
