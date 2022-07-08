@@ -19,9 +19,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-i", type=str, metavar="MD_FILENAME",
 		    help="input markdown filename (default: stdin)")
 parser.add_argument("-l", action="count", help="increase log levels")
-parser.add_argument("-L", type=str, default="/tmp/tab2html.log",
+parser.add_argument("-L", type=str, default="/tmp/mkidx.log",
                     metavar="LOG_FILENAME",
-                    help="log filename (default: /tmp/tab2html.log)")
+                    help="log filename (default: /tmp/mkidx.log)")
 
 args = parser.parse_args()
 
@@ -74,6 +74,8 @@ lines = re.split('\n',rawinbuf)
 for x in lines:
     logging.debug('processing line:' + x + "\n")
     if x.find('<h') > 0:
+       if x.find('<http') > 0 or x.find('<hostname') > 0:
+           continue
        logging.debug('found heading line:',x)
        anchor = basename + x.split('"')[1]
        text = (x.split('>')[2]).split('<')[0]
