@@ -1,6 +1,24 @@
 #!/bin/bash
 # $1 = git master markdown filename, absolute path
 
+# preset flag for "rescue the staged version from last time" to false
+rescue_staged=false
+
+# master markdown absolute pathname
+GIT_MD_ABSPATH=$1
+
+while getopts s flag
+do
+    case "${flag}" in
+        s) rescue_staged=true;;
+    esac
+done
+
+if $rescue_staged ; then
+    echo "substituting previously staged file for git original"
+    GIT_MD_ABSPATH=$2
+fi
+
 # MAAS version desired
 VERSION="main"
 
@@ -16,17 +34,14 @@ GALLEY="4917"
 # conversion logging directory, if we get that far
 LOG="$STAGE/log/tab2html.log"
 
-# master markdown absolute pathname
-GIT_MD_ABSPATH=$1
-
 # path to master markdown
-GIT_MD_DIR="$(dirname "${1}")"
+GIT_MD_DIR="$(dirname "${GIT_MD_ABSPATH}")"
 
 # compute path git repo root, for production html, if we get that far
 GIT_REPO_ROOT="$GIT_MD_DIR/.."
 
 # get base filename
-GIT_MD_BASENAME="$(basename "${1}")"
+GIT_MD_BASENAME="$(basename "${GIT_MD_ABSPATH}")"
 
 # peel topic number out of basename
 NAME=$(echo "$GIT_MD_BASENAME" | cut -f 1 -d '.')
@@ -54,6 +69,10 @@ dpull -n $TOPIC_NUMBER > $BENCH/$DISCNAM
 
 # pull the master from git to bench
 cp $GIT_MD_ABSPATH $BENCH/
+
+if $rescue_staged ; then
+    cp "$STAGE/markdown/$GIT_MD_BASENAME" $BENCH/
+fi
 
 # copy the current discourse version into the git repo
 cp $BENCH/$DISCNAM $GIT_REPO_ROOT/src/$GIT_MD_BASENAME
