@@ -6,7 +6,7 @@
 # - receives maas version to run in $1
 
 # maximum maas version to update
-VERSION=$1
+VERSION=3.3
 
 # pathname variables
 GIT_REPO_ABS_PATH="/home/stormrider/usr/src/maas-offline-docs"
@@ -17,7 +17,7 @@ GIT_HTML_TEMPLATES_ABS_PATH="$GIT_REPO_ABS_PATH/html-support/templates/$VERSION"
 LOG="/tmp/tab2html.log"
 
 cd "$GIT_MD_ABS_PATH"
-for basename in *.md
+for basename in maas-documentation-25.md
 do
     # peel topic number out of basename
     NAME=$(echo "$basename" | cut -f 1 -d '.')
@@ -26,10 +26,6 @@ do
     # compute name of html file
     HTMLNAME=$(echo "$NAME" | rev | cut -f 2- -d'-' | rev)".html"
 
-    if [ $HTMLNAME = "maas-documentation.html" ]
-    then
-       HTMLNAME = "maas-documetation-25.html"
-    fi
     # sed command to allow UI/CLI iso-page switching
     sedcmd="s/zork/$HTMLNAME/g"
 
@@ -58,8 +54,16 @@ do
     cp /tmp/images/* $GIT_HTML_DEB_ABS_PATH/images
 done
 
+# fix the maas-documentation-25.html files (name needed for clarity)
+# -- including the base maas-documentation-25.html used as a landing page
+# run the snap ui version of the html to production
+mv $GIT_HTML_SNAP_ABS_PATH/ui/maas-documentation.html $GIT_HTML_SNAP_ABS_PATH/ui/maas-documentation-25.html
+mv $GIT_HTML_DEB_ABS_PATH/ui/maas-documentation.html $GIT_HTML_DEB_ABS_PATH/ui/maas-documentation-25.html
+mv $GIT_HTML_SNAP_ABS_PATH/cli/maas-documentation.html $GIT_HTML_SNAP_ABS_PATH/ui/maas-documentation-25.html
+mv $GIT_HTML_DEB_ABS_PATH/cli/maas-documentation.html $GIT_HTML_DEB_ABS_PATH/ui/maas-documentation-25.html
 # run the snap ui version of maas landing page to production
 tab2html "v$VERSION Snap" "UI" "MAAS Documentation" -i "$GIT_REPO_ABS_PATH/src/maas-documentation-25.md" -l -L $LOG -o "$GIT_HTML_SNAP_ABS_PATH/maas-documentation-25.html" -t $GIT_HTML_TEMPLATES_ABS_PATH/snap/template.html
+sed -i -e's/maas-documentation.html/maas-documentation-25.html/ "$GIT_HTML_SNAP_ABS_PATH/ui/maas-documentation-25.html"'
 # run the deb ui version of maas landing page to production
 tab2html "v$VERSION Packages" "UI" "MAAS Documentation" -i "$GIT_REPO_ABS_PATH/src/maas-documentation-25.md" -l -L $LOG -o "$GIT_HTML_DEB_ABS_PATH/maas-documentation-25.html" -t $GIT_HTML_TEMPLATES_ABS_PATH/deb/template.html
 # sed -i -e"$sedcmd" $GIT_HTML_DEB_ABS_PATH/ui/$HTMLNAME

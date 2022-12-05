@@ -88,7 +88,7 @@ for x in blobs:
             if x.find("view=") < 0:
                 logging.debug('  blob has no view string')
                 outbuf += x.split("]",1)[1]
-            elif x.find(args.view) > 0:
+            elif x.find("view=\"" + args.view + "\"") > 0:
                 logging.debug('  blob view string matches ' + args.view)
                 outbuf += x.split("]",1)[1]
             else:
