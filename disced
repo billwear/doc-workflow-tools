@@ -103,7 +103,7 @@ git commit -m "Updated $GIT_MD_BASENAME to current discourse version"
 git push
 
 # store the diff in a findable file
-diff $BENCH/$DISCNAM $BENCH/$GIT_MD_BASENAME > $BENCH/md-diff
+diff $BENCH/$GIT_MD_BASENAME $BENCH/$DISCNAM > $BENCH/md-diff
 
 # open the text editor of your choice with whatever parameters you prefer
 ## the point is to temporarily limit focus to the doc being edited atm
